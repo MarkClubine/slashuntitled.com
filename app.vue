@@ -1,5 +1,7 @@
 <script setup lang="ts">
 const site = useSite()
+const config = useAppConfig()
+const gate = config.gate as { enabled: boolean; passwordHash: string }
 
 useSeoMeta({
   titleTemplate: title => (title ? `${title} — ${site.name}` : site.name),
@@ -7,12 +9,16 @@ useSeoMeta({
   ogSiteName: site.name,
   ogType: 'website',
   ogLocale: 'en_US',
-  twitterCard: 'summary'
+  twitterCard: 'summary',
+  // Keep the staging site out of search indexes while gated.
+  robots: gate.enabled ? 'noindex, nofollow' : null
 })
 </script>
 
 <template>
   <div>
+    <PasswordGate />
+
     <div class="glow-frame" aria-hidden="true" />
 
     <div class="p-[10px]">

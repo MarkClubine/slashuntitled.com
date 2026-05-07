@@ -82,6 +82,16 @@ server/api/project-images.get.ts
 .github/workflows/deploy.yml  CI: build + deploy to Pages
 ```
 
+## Password gate (current)
+
+The site is gated by a client-side password prompt while it's in development.
+
+- **Default password:** `slashuntitled`
+- **Change it:** edit `app.config.ts` → set `gate.passwordHash` to the SHA-256 hex of your new password. There's a snippet in the file showing how to compute it from bash or a browser console.
+- **Disable when launching:** set `gate.enabled = false` in `app.config.ts`, delete the `Disallow: /` line in `public/robots.txt` (or delete the file), and push.
+- **Localhost is auto-bypassed** so dev isn't annoying.
+- **Soft, not hard.** The page HTML, photos, and the password hash all download to the browser. It blocks casual visitors and search crawlers, not a determined attacker. If real protection is needed, move to a Cloudflare Worker proxy in front of Pages.
+
 ## Don't
 
 - Commit `node_modules/`, `.output/`, `.nuxt/` — gitignored, keep them that way.

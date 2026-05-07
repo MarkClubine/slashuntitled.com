@@ -1,0 +1,4 @@
+# Site is gated while in development.
+# Remove this Disallow line (or delete the file) once the site launches.
+User-agent: *
+Disallow: /

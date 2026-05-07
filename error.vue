@@ -13,6 +13,8 @@ const handleHome = () => clearError({ redirect: '/' })
 
 <template>
   <div>
+    <PasswordGate />
+
     <div class="glow-frame" aria-hidden="true" />
 
     <div class="p-[10px]">
