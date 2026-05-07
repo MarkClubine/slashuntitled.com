@@ -17,15 +17,7 @@ body {
   font-size: 12px;
   line-height: 1.4;
   color: #000;
-  background: #fff;
-}
-
-.glow-frame {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1000;
-  box-shadow: inset 0 0 90px rgba(255, 140, 100, 0.35);
+  background: #ffffff;
 }
 
 .link {

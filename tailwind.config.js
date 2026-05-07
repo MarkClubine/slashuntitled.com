@@ -6,14 +6,11 @@ export default {
     './pages/**/*.vue',
     './plugins/**/*.{js,ts}',
     './app.vue',
+    './error.vue',
     './content/**/*.{json,md}'
   ],
   theme: {
-    extend: {
-      colors: {
-        glow: 'rgb(255 140 100 / 0.35)'
-      }
-    }
+    extend: {}
   },
   plugins: []
 }

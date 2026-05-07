@@ -40,12 +40,12 @@ Drop `.jpg/.jpeg/.png/.webp/.gif/.avif` files into the matching `public/projects
 ## Project layout
 
 ```
-app.vue                       Root layout (header, main, footer, glow frame)
+app.vue                       Root layout (header, main, footer, password gate)
 error.vue                     Custom 404 / error page
 nuxt.config.ts                SEO defaults, prerender config, Tailwind module
 tailwind.config.js            Tailwind content paths
 assets/
-  css/main.css                Base typography, @font-face, glow frame
+  css/main.css                Base typography, @font-face
   fonts/                      Site fonts
 composables/
   useSite.ts                  Typed accessor for content/site.json

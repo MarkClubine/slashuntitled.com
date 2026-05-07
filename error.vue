@@ -15,8 +15,6 @@ const handleHome = () => clearError({ redirect: '/' })
   <div>
     <PasswordGate />
 
-    <div class="glow-frame" aria-hidden="true" />
-
     <div class="p-[10px]">
       <header class="mb-[30px]">
         <NuxtLink to="/" class="block w-fit link" @click="handleHome">{{ site.name }}</NuxtLink>

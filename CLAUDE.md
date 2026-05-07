@@ -31,7 +31,7 @@ Edit `content/site.json`. That's it.
 
 ### Change the design
 
-CSS lives in [`assets/css/main.css`](./assets/css/main.css) — typography, font registration, peach inner-glow frame. Layout shell is [`app.vue`](./app.vue). Page-specific layouts are in `pages/`. The site deliberately mirrors ellenole.com's brutalist minimalism — small black text on white, single column, no decoration except the glow frame. Run design changes by Mark/slash-untitled before pushing — the look is the brand.
+CSS lives in [`assets/css/main.css`](./assets/css/main.css) — typography and font registration. Layout shell is [`app.vue`](./app.vue). Page-specific layouts are in `pages/`. The site deliberately mirrors ellenole.com's brutalist minimalism — small black text on plain white, single column, no decoration. Run design changes by Mark/slash-untitled before pushing — the look is the brand.
 
 ## Local dev
 
@@ -60,11 +60,11 @@ For redesigns or anything that could break the build — feature branch + PR.
 ## What lives where
 
 ```
-app.vue                     Root layout: header (wordmark) + main + footer + glow frame
+app.vue                     Root layout: header (wordmark) + main + footer + layout shell
 error.vue                   Custom 404 / error page
 nuxt.config.ts              SEO defaults, prerender config, Tailwind module
 assets/
-  css/main.css              Typography, @font-face, glow frame, body font
+  css/main.css              Typography, @font-face, layout shell, body font
   fonts/                    Site fonts
 content/site.json           All editable text — name, projects, About, contact
 pages/
