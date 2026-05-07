@@ -1,0 +1,17 @@
+{
+  "name": "Slash Untitled",
+  "selectedWork": [
+    { "title": "BALMAIN FW26 Runway Show", "slug": "balmain-fw26-runway-show", "folder": "BALMAIN FW26 Runway Show" },
+    { "title": "OTTOLINGER FW 26 Runway Show", "slug": "ottolinger-fw26-runway-show", "folder": "OTTOLINGER FW 26 Runway Show" },
+    { "title": "OTTOLINGER FW 26 Showroom", "slug": "ottolinger-fw26-showroom", "folder": "OTTOLINGER FW 26 Showroom" },
+    { "title": "OTTOLINGER Pre fall 26 Showroom", "slug": "ottolinger-pre-fall-26-showroom", "folder": "OTTOLINGER Pre fall 26 Showroom" },
+    { "title": "KYLER GORDON Styling", "slug": "kyler-gordon-styling", "folder": "KYLER GORDON Styling" },
+    { "title": "SAGG NAPOLI Sempre Contratta", "slug": "sagg-napoli-sempre-contratta", "folder": "SAGG NAPOLI Sempre Contratta" },
+    { "title": "Photography", "slug": "photography", "folder": "Photography" }
+  ],
+  "archive": [],
+  "about": "TODO: write a short about / bio paragraph here.",
+  "blog": { "label": "Blog", "url": "" },
+  "instagram": { "handle": "@slash_untitled", "url": "https://instagram.com/slash_untitled" },
+  "email": "hello@slashuntitled.com"
+}

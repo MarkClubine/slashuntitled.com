@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #000;
+  background: #fff;
+}
+
+.glow-frame {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: inset 0 0 90px rgba(255, 140, 100, 0.35);
+}
+
+.link {
+  cursor: pointer;
+}
+.link:hover {
+  text-decoration: underline;
+}
