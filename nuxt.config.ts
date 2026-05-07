@@ -3,6 +3,13 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxtjs/tailwindcss'],
   css: ['~/assets/css/main.css'],
+  nitro: {
+    prerender: {
+      crawlLinks: true,
+      routes: ['/', '/about', '/archive'],
+      failOnError: true
+    }
+  },
   app: {
     head: {
       title: 'Slash Untitled',
