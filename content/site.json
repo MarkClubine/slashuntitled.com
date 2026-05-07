@@ -1,13 +1,13 @@
 {
   "name": "Slash Untitled",
   "selectedWork": [
-    { "title": "BALMAIN FW26 Runway Show", "slug": "balmain-fw26-runway-show", "folder": "BALMAIN FW26 Runway Show" },
-    { "title": "OTTOLINGER FW 26 Runway Show", "slug": "ottolinger-fw26-runway-show", "folder": "OTTOLINGER FW 26 Runway Show" },
-    { "title": "OTTOLINGER FW 26 Showroom", "slug": "ottolinger-fw26-showroom", "folder": "OTTOLINGER FW 26 Showroom" },
-    { "title": "OTTOLINGER Pre fall 26 Showroom", "slug": "ottolinger-pre-fall-26-showroom", "folder": "OTTOLINGER Pre fall 26 Showroom" },
-    { "title": "KYLER GORDON Styling", "slug": "kyler-gordon-styling", "folder": "KYLER GORDON Styling" },
-    { "title": "SAGG NAPOLI Sempre Contratta", "slug": "sagg-napoli-sempre-contratta", "folder": "SAGG NAPOLI Sempre Contratta" },
-    { "title": "Photography", "slug": "photography", "folder": "Photography" }
+    { "title": "BALMAIN FW26 Runway Show", "slug": "balmain-fw26-runway-show", "folder": "balmain-fw26-runway-show" },
+    { "title": "OTTOLINGER FW 26 Runway Show", "slug": "ottolinger-fw26-runway-show", "folder": "ottolinger-fw26-runway-show" },
+    { "title": "OTTOLINGER FW 26 Showroom", "slug": "ottolinger-fw26-showroom", "folder": "ottolinger-fw26-showroom" },
+    { "title": "OTTOLINGER Pre fall 26 Showroom", "slug": "ottolinger-pre-fall-26-showroom", "folder": "ottolinger-pre-fall-26-showroom" },
+    { "title": "KYLER GORDON Styling", "slug": "kyler-gordon-styling", "folder": "kyler-gordon-styling" },
+    { "title": "SAGG NAPOLI Sempre Contratta", "slug": "sagg-napoli-sempre-contratta", "folder": "sagg-napoli-sempre-contratta" },
+    { "title": "Photography", "slug": "photography", "folder": "photography" }
   ],
   "archive": [],
   "about": "TODO: write a short about / bio paragraph here.",
