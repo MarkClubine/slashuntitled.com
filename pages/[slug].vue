@@ -14,16 +14,21 @@ if (!item.value) {
   throw createError({ statusCode: 404, statusMessage: 'Not found' })
 }
 
-useHead({ title: `${item.value!.title} — ${site.name}` })
-
 const { data } = await useFetch<{ images: string[] }>('/api/project-images', {
-  query: { folder: item.value!.folder ?? '' }
+  query: { folder: item.value!.folder ?? '' },
+  key: `images-${item.value!.slug}`
+})
+
+useSeoMeta({
+  title: item.value!.title,
+  description: `${item.value!.title} — work by ${site.name}`,
+  ogImage: data.value?.images?.[0]
 })
 </script>
 
 <template>
-  <div v-if="item">
-    <div class="mb-[15px]">{{ item.title }}</div>
+  <article v-if="item">
+    <h1 class="mb-[15px] font-normal">{{ item.title }}</h1>
     <div v-if="data?.images?.length" class="space-y-[10px] max-w-[900px]">
       <img
         v-for="src in data.images"
@@ -35,5 +40,5 @@ const { data } = await useFetch<{ images: string[] }>('/api/project-images', {
       />
     </div>
     <p v-else class="text-neutral-500">No images yet.</p>
-  </div>
+  </article>
 </template>

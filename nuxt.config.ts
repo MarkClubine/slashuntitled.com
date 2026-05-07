@@ -10,17 +10,22 @@ export default defineNuxtConfig({
       failOnError: true
     }
   },
+  site: {
+    url: 'https://slashuntitled.com',
+    name: 'Slash Untitled'
+  },
   app: {
     head: {
-      title: 'Slash Untitled',
       htmlAttrs: { lang: 'en' },
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: '' },
-        { name: 'google', content: 'notranslate' }
+        { name: 'google', content: 'notranslate' },
+        { name: 'theme-color', content: '#ffffff' }
       ],
-      link: [{ rel: 'icon', href: '/favicon.ico' }],
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }
+      ],
       bodyAttrs: { class: 'overflow-x-hidden' }
     }
   }

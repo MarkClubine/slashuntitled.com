@@ -1,13 +1,18 @@
 <script setup lang="ts">
 const site = useSite()
-useHead({ title: `About — ${site.name}` })
+
+useSeoMeta({
+  title: 'About',
+  description: site.about.replace(/^TODO:.*/, '').trim() || `About ${site.name}`
+})
 </script>
 
 <template>
-  <div class="max-w-[600px]">
+  <article class="max-w-[600px]">
+    <h1 class="sr-only">About</h1>
     <p class="whitespace-pre-line">{{ site.about }}</p>
 
-    <div class="mt-[30px]">
+    <footer class="mt-[30px]">
       <a
         v-if="site.instagram.url"
         :href="site.instagram.url"
@@ -20,6 +25,6 @@ useHead({ title: `About — ${site.name}` })
         :href="`mailto:${site.email}`"
         class="block w-fit"
       >{{ site.email }}</a>
-    </div>
-  </div>
+    </footer>
+  </article>
 </template>

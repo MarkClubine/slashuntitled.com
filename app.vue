@@ -1,6 +1,14 @@
 <script setup lang="ts">
 const site = useSite()
-useHead({ title: site.name })
+
+useSeoMeta({
+  titleTemplate: title => (title ? `${title} — ${site.name}` : site.name),
+  description: site.about.replace(/^TODO:.*/, '').trim() || `${site.name} — selected work`,
+  ogSiteName: site.name,
+  ogType: 'website',
+  ogLocale: 'en_US',
+  twitterCard: 'summary'
+})
 </script>
 
 <template>
@@ -8,8 +16,13 @@ useHead({ title: site.name })
     <div class="glow-frame" aria-hidden="true" />
 
     <div class="p-[10px]">
-      <NuxtLink to="/" class="block w-fit mb-[30px] link">{{ site.name }}</NuxtLink>
-      <NuxtPage />
+      <header class="mb-[30px]">
+        <NuxtLink to="/" class="block w-fit link">{{ site.name }}</NuxtLink>
+      </header>
+
+      <main>
+        <NuxtPage />
+      </main>
     </div>
 
     <button
