@@ -67,7 +67,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         @click="open(i)"
       >
         <img :src="src" :alt="`Image ${i + 1}`" class="thumb-img" />
-        <span class="thumb-number">{{ String(i + 1).padStart(2, '0') }}</span>
+        <span class="thumb-number">({{ i + 1 }})</span>
       </button>
     </div>
 
@@ -150,12 +150,11 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   position: absolute;
   bottom: 5px;
   left: 7px;
-  font-size: 0.6rem;
-  letter-spacing: 0.06em;
+  font-size: 0.55rem;
+  letter-spacing: 0.02em;
   color: #fff;
-  opacity: 0.6;
+  opacity: 0.5;
   pointer-events: none;
-  font-variant-numeric: tabular-nums;
 }
 
 /* ── Lightbox ── */
