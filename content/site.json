@@ -10,7 +10,10 @@
     { "title": "Photography", "slug": "photography", "folder": "photography" }
   ],
   "archive": [],
-  "about": "TODO: write a short about / bio paragraph here.",
+  "about": "SLASH UNTITLED is a multidisciplinary creative practice based between Paris and Zurich, founded by Mauro Cecchetti. Operating at the intersection of architecture, visual culture, and contemporary art, the
+studio develops concept-driven work across spatial design, exhibitions, and visual direction.
+Structured as a flexible platform, slash untitled collaborates with a network of creatives on a project-by-project basis, allowing each commission to be approached with a precise and adaptive
+methodology.",
   "blog": { "label": "Blog", "url": "" },
   "instagram": { "handle": "@slash.untitled", "url": "https://www.instagram.com/slash.untitled/" },
   "email": "work@slashuntitled.com"
