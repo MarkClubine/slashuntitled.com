@@ -18,7 +18,7 @@ const { data: images } = await useFetch('/api/project-images', {
   query: { folder: project.value?.folder }
 })
 
-const imageList = computed<string[]>(() => images.value ?? [])
+const imageList = computed<string[]>(() => (images.value as any)?.images ?? [])
 
 // Lightbox state
 const activeIndex = ref<number | null>(null)
