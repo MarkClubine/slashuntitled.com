@@ -151,7 +151,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 12px;
+  gap: 56px;
 }
 
 .thumb-wrap {
