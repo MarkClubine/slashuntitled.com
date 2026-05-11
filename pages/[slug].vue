@@ -74,13 +74,15 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       >
         <!-- Video thumbnail -->
         <video
-          v-if="isVideo(src)"
-          :src="src"
-          class="thumb-img"
-          muted
-          playsinline
-          preload="metadata"
-        />
+  v-if="isVideo(src)"
+  :src="src"
+  class="thumb-img"
+  muted
+  playsinline
+  autoplay
+  loop
+  preload="auto"
+/>
         <!-- Image thumbnail -->
         <img
           v-else
@@ -163,6 +165,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   border: none;
   padding: 0;
   display: block;
+}.thumb-wrap:has(video) {
+  aspect-ratio: auto;
 }
 
 .thumb-img {
