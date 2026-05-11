@@ -30,18 +30,6 @@ const descriptionLines = computed<string[]>(() => {
   return desc.split('|').map((s: string) => s.trim()).filter(Boolean)
 })
 
-const gridRef = ref<HTMLElement | null>(null)
-
-onMounted(() => {
-  nextTick(() => {
-    const videos = gridRef.value?.querySelectorAll('video')
-    videos?.forEach(v => {
-      v.muted = true
-      v.play().catch(() => {})
-    })
-  })
-})
-
 const activeIndex = ref<number | null>(null)
 const open = (i: number) => activeIndex.value = i
 const close = () => activeIndex.value = null
@@ -72,7 +60,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       <p v-for="line in descriptionLines" :key="line">{{ line }}</p>
     </div>
 
-    <div ref="gridRef" class="grid">
+    <div class="grid">
       <button
         v-for="(src, i) in mediaList"
         :key="src"
@@ -83,6 +71,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         <video
           v-if="isVideo(src)"
           :src="src"
+          autoplay
           muted
           playsinline
           loop
