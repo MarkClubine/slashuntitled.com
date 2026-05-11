@@ -1,18 +1,4 @@
 <script setup lang="ts">
-  const hasInteracted = ref(false)
-
-function unlockVideos() {
-  if (hasInteracted.value) return
-  hasInteracted.value = true
-  document.querySelectorAll('video[data-thumb]').forEach(v => {
-    (v as HTMLVideoElement).play().catch(() => {})
-  })
-}
-
-onMounted(() => {
-  document.addEventListener('click', unlockVideos, { once: true })
-  document.addEventListener('touchstart', unlockVideos, { once: true })
-})
 const route = useRoute()
 const site = useSite()
 
@@ -44,6 +30,35 @@ const descriptionLines = computed<string[]>(() => {
   return desc.split('|').map((s: string) => s.trim()).filter(Boolean)
 })
 
+// Unlock autoplay on first interaction
+function unlockVideos() {
+  document.querySelectorAll('video[data-thumb]').forEach(v => {
+    const vid = v as HTMLVideoElement
+    vid.muted = true
+    vid.play().catch(() => {})
+  })
+}
+
+onMounted(() => {
+  // Try immediately first
+  nextTick(() => {
+    document.querySelectorAll('video[data-thumb]').forEach(v => {
+      const vid = v as HTMLVideoElement
+      vid.muted = true
+      vid.play().catch(() => {})
+    })
+  })
+  // Fallback: unlock on first user interaction
+  document.addEventListener('click', unlockVideos, { once: true })
+  document.addEventListener('touchstart', unlockVideos, { once: true })
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', unlockVideos)
+  document.removeEventListener('touchstart', unlockVideos)
+})
+
+// Lightbox
 const activeIndex = ref<number | null>(null)
 const open = (i: number) => activeIndex.value = i
 const close = () => activeIndex.value = null
@@ -85,6 +100,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         <video
           v-if="isVideo(src)"
           :src="src"
+          data-thumb
           autoplay
           muted
           playsinline
@@ -153,7 +169,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   line-height: 1.6;
 }
 
-/* Mobile first: 2 columns */
+/* Mobile: 2 columns */
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
