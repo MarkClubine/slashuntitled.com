@@ -1,4 +1,18 @@
 <script setup lang="ts">
+  const hasInteracted = ref(false)
+
+function unlockVideos() {
+  if (hasInteracted.value) return
+  hasInteracted.value = true
+  document.querySelectorAll('video[data-thumb]').forEach(v => {
+    (v as HTMLVideoElement).play().catch(() => {})
+  })
+}
+
+onMounted(() => {
+  document.addEventListener('click', unlockVideos, { once: true })
+  document.addEventListener('touchstart', unlockVideos, { once: true })
+})
 const route = useRoute()
 const site = useSite()
 
