@@ -1,13 +1,13 @@
 {
   "name": "Slash Untitled",
   "selectedWork": [
-   { "title": "BALMAIN FW26 Runway Show", "slug": "balmain-fw26-runway-show", "folder": "balmain-fw26-runway-show", "description": "Set design, Paris 2026 for Andrea Faraguna" }
-    { "title": "OTTOLINGER FW 26 Runway Show", "slug": "ottolinger-fw26-runway-show", "folder": "ottolinger-fw26-runway-show", "description": "Set design, Paris 2026"},
-    { "title": "OTTOLINGER FW 26 Showroom", "slug": "ottolinger-fw26-showroom", "folder": "ottolinger-fw26-showroom","description": "Set design, Paris 2026" },
+    { "title": "BALMAIN FW26 Runway Show", "slug": "balmain-fw26-runway-show", "folder": "balmain-fw26-runway-show", "description": "Set design, Paris 2026 for Andrea Faraguna" },
+    { "title": "OTTOLINGER FW 26 Runway Show", "slug": "ottolinger-fw26-runway-show", "folder": "ottolinger-fw26-runway-show", "description": "Set design, Paris 2026" },
+    { "title": "OTTOLINGER FW 26 Showroom", "slug": "ottolinger-fw26-showroom", "folder": "ottolinger-fw26-showroom", "description": "Set design, Paris 2026" },
     { "title": "OTTOLINGER Pre fall 26 Showroom", "slug": "ottolinger-pre-fall-26-showroom", "folder": "ottolinger-pre-fall-26-showroom" },
-    { "title": "KYLER GORDON Styling", "slug": "kyler-gordon-styling", "folder": "kyler-gordon-styling","description": "Styling, New york 2025"}
-    { "title": "SAGG NAPOLI Sempre Contratta", "slug": "sagg-napoli-sempre-contratta", "folder": "sagg-napoli-sempre-contratta","description": "Rome 2024 Contribution to Sofia Albrigo Set design" },
-    { "title": "Photography", "slug": "photography", "folder": "photography" ,"description": "Collection of photos shot with film cameras"}
+    { "title": "KYLER GORDON Styling", "slug": "kyler-gordon-styling", "folder": "kyler-gordon-styling", "description": "Styling, New York 2025" },
+    { "title": "SAGG NAPOLI Sempre Contratta", "slug": "sagg-napoli-sempre-contratta", "folder": "sagg-napoli-sempre-contratta", "description": "Rome 2024, contribution to Sofia Albrigo set design" },
+    { "title": "Photography", "slug": "photography", "folder": "photography", "description": "Collection of photos shot with film cameras" }
   ],
   "archive": [],
   "about": "SLASH UNTITLED is a multidisciplinary creative practice.",
