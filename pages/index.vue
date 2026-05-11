@@ -12,7 +12,7 @@ useSeoMeta({
   <div>
     <section class="mb-[30px]" aria-labelledby="selected-work-heading">
       <h2 id="selected-work-heading" class="mb-[5px] font-normal">Selected work</h2>
-      <ul>
+      <ul class="flex flex-col gap-[8px]">
         <li v-for="item in site.selectedWork" :key="item.slug">
           <a
             v-if="item.url"
