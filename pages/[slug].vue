@@ -165,7 +165,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 
 /* Video cell — 16:9, spans 2 columns */
 .cell--video {
-  grid-column: span 2;
+  grid-column: span 4;
   aspect-ratio: 16 / 9;
 }
 
