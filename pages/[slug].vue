@@ -24,7 +24,6 @@ function isVideo(src: string) {
   return VIDEO_EXT.some(ext => src.toLowerCase().endsWith(ext))
 }
 
-// Force autoplay on all video thumbnails after mount
 const gridRef = ref<HTMLElement | null>(null)
 
 onMounted(() => {
@@ -37,7 +36,6 @@ onMounted(() => {
   })
 })
 
-// Lightbox
 const activeIndex = ref<number | null>(null)
 const open = (i: number) => activeIndex.value = i
 const close = () => activeIndex.value = null
@@ -64,6 +62,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 <template>
   <div>
     <h1 class="title">{{ project?.title }}</h1>
+    <p v-if="(project as any)?.description" class="description">{{ (project as any)?.description }}</p>
 
     <div ref="gridRef" class="grid">
       <button
@@ -90,7 +89,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       </button>
     </div>
 
-    <!-- Lightbox -->
     <Teleport to="body">
       <Transition name="fade">
         <div v-if="activeIndex !== null" class="lb" @click.self="close">
@@ -128,10 +126,17 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   letter-spacing: 0.04em;
   text-transform: uppercase;
   opacity: 0.5;
-  margin-bottom: 24px;
+  margin-bottom: 6px;
 }
 
-/* Grid */
+.description {
+  font-size: 0.7rem;
+  font-weight: 400;
+  opacity: 0.4;
+  margin-bottom: 24px;
+  letter-spacing: 0.02em;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -139,7 +144,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   align-items: start;
 }
 
-/* Base cell */
 .cell {
   position: relative;
   cursor: pointer;
@@ -150,7 +154,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   overflow: hidden;
 }
 
-/* Image cell — portrait */
 .cell--image {
   aspect-ratio: 3 / 4;
 }
@@ -163,7 +166,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   transition: opacity 0.2s;
 }
 
-/* Video cell — 16:9, spans 2 columns */
 .cell--video {
   grid-column: span 4;
   aspect-ratio: 16 / 9;
@@ -182,7 +184,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   opacity: 0.75;
 }
 
-/* Number label */
 .num {
   position: absolute;
   bottom: 5px;
@@ -193,7 +194,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   pointer-events: none;
 }
 
-/* Lightbox */
 .lb {
   position: fixed;
   inset: 0;
@@ -265,7 +265,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 .lb-prev { left: 12px; }
 .lb-next { right: 12px; }
 
-/* Transition */
 .fade-enter-active,
 .fade-leave-active { transition: opacity 0.2s ease; }
 .fade-enter-from,
