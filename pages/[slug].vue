@@ -26,6 +26,18 @@ function isVideo(src: string) {
   return VIDEO_EXTENSIONS.some(ext => src.toLowerCase().endsWith(ext))
 }
 
+// Autoplay videos on mount
+const videoRefs = ref<HTMLVideoElement[]>([])
+
+onMounted(() => {
+  videoRefs.value.forEach(v => {
+    if (v) {
+      v.muted = true
+      v.play().catch(() => {})
+    }
+  })
+})
+
 // Lightbox state
 const activeIndex = ref<number | null>(null)
 
@@ -60,10 +72,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 
 <template>
   <div>
-    <!-- Project title -->
     <h1 class="project-title">{{ project?.title }}</h1>
 
-    <!-- Grid -->
     <div class="grid">
       <button
         v-for="(src, i) in mediaList"
@@ -72,18 +82,16 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         :aria-label="`Open item ${i + 1}`"
         @click="open(i)"
       >
-        <!-- Video thumbnail -->
         <video
           v-if="isVideo(src)"
+          :ref="el => { if (el) videoRefs[i] = el as HTMLVideoElement }"
           :src="src"
           class="thumb-video"
           muted
           playsinline
-          autoplay
           loop
           preload="auto"
         />
-        <!-- Image thumbnail -->
         <img
           v-else
           :src="src"
@@ -94,7 +102,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       </button>
     </div>
 
-    <!-- Lightbox -->
     <Teleport to="body">
       <Transition name="lb">
         <div
@@ -146,11 +153,11 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 48px;
+  gap: 12px;
   align-items: start;
 }
 
-/* Image thumbnails — fixed portrait ratio */
+/* Image cell — portrait ratio */
 .thumb-wrap {
   position: relative;
   aspect-ratio: 3 / 4;
@@ -162,10 +169,11 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   display: block;
 }
 
-/* Video thumbnails — natural ratio */
+/* Video cell — 2 columns wide, same height as images */
 .thumb-wrap--video {
-  aspect-ratio: auto;
-  overflow: visible;
+  grid-column: span 2;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
 }
 
 .thumb-img {
@@ -178,7 +186,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 
 .thumb-video {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   display: block;
   transition: opacity 0.2s ease;
 }
