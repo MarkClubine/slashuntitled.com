@@ -9,10 +9,7 @@
     { "title": "SAGG NAPOLI Sempre Contratta", "slug": "sagg-napoli-sempre-contratta", "folder": "sagg-napoli-sempre-contratta" },
     { "title": "Photography", "slug": "photography", "folder": "photography" }
   ],
-  "archive": [
-    { "title": "Project Name", "year": "2024", "category": "Set Design" },
-    { "title": "Another Project", "year": "2023", "category": "Photography" }
-  ],
+  "archive": [],
   "about": ".",
   "blog": { "label": "Blog", "url": "" },
   "instagram": { "handle": "@slash.untitled", "url": "https://www.instagram.com/slash.untitled/" },
