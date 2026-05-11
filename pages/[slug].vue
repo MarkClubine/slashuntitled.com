@@ -150,11 +150,19 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   line-height: 1.6;
 }
 
+/* Mobile first: 2 columns */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   align-items: start;
+}
+
+/* Desktop: auto-fill */
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
 }
 
 .cell {
@@ -179,9 +187,17 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   transition: opacity 0.2s;
 }
 
+/* Mobile: video full width */
 .cell--video {
-  grid-column: span 4;
+  grid-column: span 2;
   aspect-ratio: 16 / 9;
+}
+
+/* Desktop: video spans 4 columns */
+@media (min-width: 640px) {
+  .cell--video {
+    grid-column: span 4;
+  }
 }
 
 .cell--video video {
