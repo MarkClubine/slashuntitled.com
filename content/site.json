@@ -9,7 +9,10 @@
     { "title": "SAGG NAPOLI Sempre Contratta", "slug": "sagg-napoli-sempre-contratta", "folder": "sagg-napoli-sempre-contratta" },
     { "title": "Photography", "slug": "photography", "folder": "photography" }
   ],
-  "archive": [],
+  "archive": ["archive": [
+  { "title": "Project Name", "year": "2024", "category": "Set Design" },
+  { "title": "Another Project", "year": "2023", "category": "Photography" }
+]],
   "about": "SLASH UNTITLED is a multidisciplinary creative practice based between Paris and Zurich, founded by Mauro Cecchetti. Operating at the intersection of architecture, visual culture, and contemporary art, the
 studio develops concept-driven work across spatial design, exhibitions, and visual direction.
 Structured as a flexible platform, slash untitled collaborates with a network of creatives on a project-by-project basis, allowing each commission to be approached with a precise and adaptive
