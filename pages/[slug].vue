@@ -68,21 +68,21 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       <button
         v-for="(src, i) in mediaList"
         :key="src"
-        class="thumb-wrap"
+        :class="['thumb-wrap', isVideo(src) ? 'thumb-wrap--video' : '']"
         :aria-label="`Open item ${i + 1}`"
         @click="open(i)"
       >
         <!-- Video thumbnail -->
         <video
-  v-if="isVideo(src)"
-  :src="src"
-  class="thumb-img"
-  muted
-  playsinline
-  autoplay
-  loop
-  preload="auto"
-/>
+          v-if="isVideo(src)"
+          :src="src"
+          class="thumb-video"
+          muted
+          playsinline
+          autoplay
+          loop
+          preload="auto"
+        />
         <!-- Image thumbnail -->
         <img
           v-else
@@ -91,7 +91,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           class="thumb-img"
         />
         <span class="thumb-number">({{ i + 1 }})</span>
-        <span v-if="isVideo(src)" class="video-badge">▶</span>
       </button>
     </div>
 
@@ -103,15 +102,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           class="lightbox"
           @click.self="close"
         >
-          <!-- Close -->
           <button class="lb-close" aria-label="Close" @click="close">&#x2715;</button>
 
-          <!-- Counter -->
           <span class="lb-counter">
             {{ String((activeIndex ?? 0) + 1).padStart(2, '0') }} / {{ String(mediaList.length).padStart(2, '0') }}
           </span>
 
-          <!-- Media -->
           <div class="lb-media-wrap" @click.self="close">
             <video
               v-if="isVideo(mediaList[activeIndex ?? 0])"
@@ -129,7 +125,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
             />
           </div>
 
-          <!-- Prev / Next -->
           <button class="lb-arrow lb-prev" aria-label="Previous" @click="prev">&#x2190;</button>
           <button class="lb-arrow lb-next" aria-label="Next" @click="next">&#x2192;</button>
         </div>
@@ -139,7 +134,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </template>
 
 <style scoped>
-/* ── Title ── */
 .project-title {
   font-size: 0.75rem;
   font-weight: 400;
@@ -149,13 +143,14 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   opacity: 0.5;
 }
 
-/* ── Grid ── */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 56px;
+  gap: 48px;
+  align-items: start;
 }
 
+/* Image thumbnails — fixed portrait ratio */
 .thumb-wrap {
   position: relative;
   aspect-ratio: 3 / 4;
@@ -165,8 +160,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   border: none;
   padding: 0;
   display: block;
-}.thumb-wrap:has(video) {
+}
+
+/* Video thumbnails — natural ratio */
+.thumb-wrap--video {
   aspect-ratio: auto;
+  overflow: visible;
 }
 
 .thumb-img {
@@ -177,7 +176,15 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   transition: opacity 0.2s ease;
 }
 
-.thumb-wrap:hover .thumb-img {
+.thumb-video {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: opacity 0.2s ease;
+}
+
+.thumb-wrap:hover .thumb-img,
+.thumb-wrap:hover .thumb-video {
   opacity: 0.75;
 }
 
@@ -192,17 +199,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   pointer-events: none;
 }
 
-.video-badge {
-  position: absolute;
-  top: 7px;
-  right: 7px;
-  font-size: 0.5rem;
-  color: #fff;
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-/* ── Lightbox ── */
 .lightbox {
   position: fixed;
   inset: 0;
@@ -285,7 +281,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 .lb-prev { left: 12px; }
 .lb-next { right: 12px; }
 
-/* ── Transition ── */
 .lb-enter-active,
 .lb-leave-active {
   transition: opacity 0.2s ease;
