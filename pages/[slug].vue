@@ -24,6 +24,12 @@ function isVideo(src: string) {
   return VIDEO_EXT.some(ext => src.toLowerCase().endsWith(ext))
 }
 
+const descriptionLines = computed<string[]>(() => {
+  const desc = (project.value as any)?.description
+  if (!desc) return []
+  return desc.split('|').map((s: string) => s.trim()).filter(Boolean)
+})
+
 const gridRef = ref<HTMLElement | null>(null)
 
 onMounted(() => {
@@ -62,7 +68,9 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 <template>
   <div>
     <h1 class="title">{{ project?.title }}</h1>
-    <p v-if="(project as any)?.description" class="description">{{ (project as any)?.description }}</p>
+    <div v-if="descriptionLines.length" class="description">
+      <p v-for="line in descriptionLines" :key="line">{{ line }}</p>
+    </div>
 
     <div ref="gridRef" class="grid">
       <button
@@ -130,11 +138,16 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 }
 
 .description {
+  margin-bottom: 24px;
+}
+
+.description p {
   font-size: 0.7rem;
   font-weight: 400;
   opacity: 0.4;
-  margin-bottom: 24px;
   letter-spacing: 0.02em;
+  margin: 0;
+  line-height: 1.6;
 }
 
 .grid {
