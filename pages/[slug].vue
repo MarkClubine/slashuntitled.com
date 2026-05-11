@@ -10,51 +10,42 @@ if (!project.value) {
   throw createError({ statusCode: 404, statusMessage: 'Project not found' })
 }
 
-useHead({
-  title: project.value?.title ?? ''
-})
+useHead({ title: project.value?.title ?? '' })
 
-const { data: images } = await useFetch('/api/project-images', {
+const { data: raw } = await useFetch('/api/project-images', {
   query: { folder: project.value?.folder }
 })
 
-const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov']
+const VIDEO_EXT = ['.mp4', '.webm', '.mov']
 
-const mediaList = computed<string[]>(() => (images.value as any)?.images ?? [])
+const mediaList = computed<string[]>(() => (raw.value as any)?.images ?? [])
 
 function isVideo(src: string) {
-  return VIDEO_EXTENSIONS.some(ext => src.toLowerCase().endsWith(ext))
+  return VIDEO_EXT.some(ext => src.toLowerCase().endsWith(ext))
 }
 
-// Autoplay videos on mount
-const videoRefs = ref<HTMLVideoElement[]>([])
+// Force autoplay on all video thumbnails after mount
+const gridRef = ref<HTMLElement | null>(null)
 
 onMounted(() => {
-  videoRefs.value.forEach(v => {
-    if (v) {
+  nextTick(() => {
+    const videos = gridRef.value?.querySelectorAll('video')
+    videos?.forEach(v => {
       v.muted = true
       v.play().catch(() => {})
-    }
+    })
   })
 })
 
-// Lightbox state
+// Lightbox
 const activeIndex = ref<number | null>(null)
-
-function open(i: number) {
-  activeIndex.value = i
-}
-
-function close() {
-  activeIndex.value = null
-}
-
-function prev() {
+const open = (i: number) => activeIndex.value = i
+const close = () => activeIndex.value = null
+const prev = () => {
   if (activeIndex.value === null) return
   activeIndex.value = (activeIndex.value - 1 + mediaList.value.length) % mediaList.value.length
 }
-
-function next() {
+const next = () => {
   if (activeIndex.value === null) return
   activeIndex.value = (activeIndex.value + 1) % mediaList.value.length
 }
@@ -72,21 +63,19 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 
 <template>
   <div>
-    <h1 class="project-title">{{ project?.title }}</h1>
+    <h1 class="title">{{ project?.title }}</h1>
 
-    <div class="grid">
+    <div ref="gridRef" class="grid">
       <button
         v-for="(src, i) in mediaList"
         :key="src"
-        :class="['thumb-wrap', isVideo(src) ? 'thumb-wrap--video' : '']"
-        :aria-label="`Open item ${i + 1}`"
+        :class="['cell', isVideo(src) ? 'cell--video' : 'cell--image']"
+        :aria-label="`Open ${i + 1}`"
         @click="open(i)"
       >
         <video
           v-if="isVideo(src)"
-          :ref="el => { if (el) videoRefs[i] = el as HTMLVideoElement }"
           :src="src"
-          class="thumb-video"
           muted
           playsinline
           loop
@@ -96,44 +85,36 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           v-else
           :src="src"
           :alt="`Image ${i + 1}`"
-          class="thumb-img"
         />
-        <span class="thumb-number">({{ i + 1 }})</span>
+        <span class="num">({{ i + 1 }})</span>
       </button>
     </div>
 
+    <!-- Lightbox -->
     <Teleport to="body">
-      <Transition name="lb">
-        <div
-          v-if="activeIndex !== null"
-          class="lightbox"
-          @click.self="close"
-        >
-          <button class="lb-close" aria-label="Close" @click="close">&#x2715;</button>
-
-          <span class="lb-counter">
+      <Transition name="fade">
+        <div v-if="activeIndex !== null" class="lb" @click.self="close">
+          <button class="lb-close" @click="close">✕</button>
+          <span class="lb-count">
             {{ String((activeIndex ?? 0) + 1).padStart(2, '0') }} / {{ String(mediaList.length).padStart(2, '0') }}
           </span>
-
-          <div class="lb-media-wrap" @click.self="close">
+          <div class="lb-content">
             <video
               v-if="isVideo(mediaList[activeIndex ?? 0])"
               :src="mediaList[activeIndex ?? 0]"
-              class="lb-video"
               controls
               autoplay
               playsinline
+              class="lb-media"
             />
             <img
               v-else
               :src="mediaList[activeIndex ?? 0]"
-              :alt="`Image ${(activeIndex ?? 0) + 1}`"
-              class="lb-img"
+              class="lb-media"
             />
           </div>
-
-          <button class="lb-arrow lb-prev" aria-label="Previous" @click="prev">&#x2190;</button>
-          <button class="lb-arrow lb-next" aria-label="Next" @click="next">&#x2192;</button>
+          <button class="lb-prev" @click="prev">←</button>
+          <button class="lb-next" @click="next">→</button>
         </div>
       </Transition>
     </Teleport>
@@ -141,15 +122,16 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </template>
 
 <style scoped>
-.project-title {
+.title {
   font-size: 0.75rem;
   font-weight: 400;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  margin-bottom: 24px;
   opacity: 0.5;
+  margin-bottom: 24px;
 }
 
+/* Grid */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -157,68 +139,72 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   align-items: start;
 }
 
-/* Image cell — portrait ratio */
-.thumb-wrap {
+/* Base cell */
+.cell {
   position: relative;
-  aspect-ratio: 3 / 4;
-  overflow: hidden;
   cursor: pointer;
   background: #111;
   border: none;
   padding: 0;
   display: block;
-}
-
-/* Video cell — 2 columns wide, same height as images */
-.thumb-wrap--video {
-  grid-column: span 2;
-  aspect-ratio: 3 / 4;
   overflow: hidden;
 }
 
-.thumb-img {
+/* Image cell — portrait */
+.cell--image {
+  aspect-ratio: 3 / 4;
+}
+
+.cell--image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s;
 }
 
-.thumb-video {
+/* Video cell — 16:9, spans 2 columns */
+.cell--video {
+  grid-column: span 2;
+  aspect-ratio: 16 / 9;
+}
+
+.cell--video video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s;
 }
 
-.thumb-wrap:hover .thumb-img,
-.thumb-wrap:hover .thumb-video {
+.cell:hover img,
+.cell:hover video {
   opacity: 0.75;
 }
 
-.thumb-number {
+/* Number label */
+.num {
   position: absolute;
   bottom: 5px;
   left: 7px;
   font-size: 0.55rem;
-  letter-spacing: 0.02em;
   color: #fff;
   opacity: 0.5;
   pointer-events: none;
 }
 
-.lightbox {
+/* Lightbox */
+.lb {
   position: fixed;
   inset: 0;
   z-index: 2000;
-  background: rgba(0, 0, 0, 0.96);
+  background: rgba(0,0,0,0.96);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.lb-media-wrap {
+.lb-content {
   max-width: 90vw;
   max-height: 90vh;
   display: flex;
@@ -226,23 +212,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   justify-content: center;
 }
 
-.lb-img {
+.lb-media {
   max-width: 90vw;
   max-height: 90vh;
   object-fit: contain;
   display: block;
-}
-
-.lb-video {
-  max-width: 90vw;
-  max-height: 90vh;
-  display: block;
   background: #000;
-  outline: none;
-}
-
-.lb-video::-webkit-media-controls-panel {
-  background: rgba(0, 0, 0, 0.6);
 }
 
 .lb-close {
@@ -253,26 +228,25 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   border: none;
   color: #fff;
   font-size: 1rem;
-  cursor: pointer;
   opacity: 0.5;
-  transition: opacity 0.15s;
+  cursor: pointer;
   z-index: 2100;
+  transition: opacity 0.15s;
 }
 .lb-close:hover { opacity: 1; }
 
-.lb-counter {
+.lb-count {
   position: fixed;
   top: 16px;
   left: 16px;
   font-size: 0.65rem;
-  letter-spacing: 0.08em;
   color: #fff;
   opacity: 0.4;
-  font-variant-numeric: tabular-nums;
   z-index: 2100;
 }
 
-.lb-arrow {
+.lb-prev,
+.lb-next {
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
@@ -280,22 +254,20 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   border: none;
   color: #fff;
   font-size: 1.1rem;
-  cursor: pointer;
   opacity: 0.35;
-  transition: opacity 0.15s;
+  cursor: pointer;
   padding: 12px 16px;
   z-index: 2100;
+  transition: opacity 0.15s;
 }
-.lb-arrow:hover { opacity: 1; }
+.lb-prev:hover,
+.lb-next:hover { opacity: 1; }
 .lb-prev { left: 12px; }
 .lb-next { right: 12px; }
 
-.lb-enter-active,
-.lb-leave-active {
-  transition: opacity 0.2s ease;
-}
-.lb-enter-from,
-.lb-leave-to {
-  opacity: 0;
-}
+/* Transition */
+.fade-enter-active,
+.fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from,
+.fade-leave-to { opacity: 0; }
 </style>
