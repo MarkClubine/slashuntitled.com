@@ -18,7 +18,13 @@ const { data: images } = await useFetch('/api/project-images', {
   query: { folder: project.value?.folder }
 })
 
-const imageList = computed<string[]>(() => (images.value as any)?.images ?? [])
+const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov']
+
+const mediaList = computed<string[]>(() => (images.value as any)?.images ?? [])
+
+function isVideo(src: string) {
+  return VIDEO_EXTENSIONS.some(ext => src.toLowerCase().endsWith(ext))
+}
 
 // Lightbox state
 const activeIndex = ref<number | null>(null)
@@ -33,12 +39,12 @@ function close() {
 
 function prev() {
   if (activeIndex.value === null) return
-  activeIndex.value = (activeIndex.value - 1 + imageList.value.length) % imageList.value.length
+  activeIndex.value = (activeIndex.value - 1 + mediaList.value.length) % mediaList.value.length
 }
 
 function next() {
   if (activeIndex.value === null) return
-  activeIndex.value = (activeIndex.value + 1) % imageList.value.length
+  activeIndex.value = (activeIndex.value + 1) % mediaList.value.length
 }
 
 function onKey(e: KeyboardEvent) {
@@ -57,17 +63,33 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     <!-- Project title -->
     <h1 class="project-title">{{ project?.title }}</h1>
 
-    <!-- Thumbnail grid -->
+    <!-- Grid -->
     <div class="grid">
       <button
-        v-for="(src, i) in imageList"
+        v-for="(src, i) in mediaList"
         :key="src"
         class="thumb-wrap"
-        :aria-label="`Open image ${i + 1}`"
+        :aria-label="`Open item ${i + 1}`"
         @click="open(i)"
       >
-        <img :src="src" :alt="`Image ${i + 1}`" class="thumb-img" />
+        <!-- Video thumbnail -->
+        <video
+          v-if="isVideo(src)"
+          :src="src"
+          class="thumb-img"
+          muted
+          playsinline
+          preload="metadata"
+        />
+        <!-- Image thumbnail -->
+        <img
+          v-else
+          :src="src"
+          :alt="`Image ${i + 1}`"
+          class="thumb-img"
+        />
         <span class="thumb-number">({{ i + 1 }})</span>
+        <span v-if="isVideo(src)" class="video-badge">▶</span>
       </button>
     </div>
 
@@ -84,13 +106,22 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 
           <!-- Counter -->
           <span class="lb-counter">
-            {{ String((activeIndex ?? 0) + 1).padStart(2, '0') }} / {{ String(imageList.length).padStart(2, '0') }}
+            {{ String((activeIndex ?? 0) + 1).padStart(2, '0') }} / {{ String(mediaList.length).padStart(2, '0') }}
           </span>
 
-          <!-- Image -->
-          <div class="lb-img-wrap" @click.self="close">
+          <!-- Media -->
+          <div class="lb-media-wrap" @click.self="close">
+            <video
+              v-if="isVideo(mediaList[activeIndex ?? 0])"
+              :src="mediaList[activeIndex ?? 0]"
+              class="lb-video"
+              controls
+              autoplay
+              playsinline
+            />
             <img
-              :src="imageList[activeIndex ?? 0]"
+              v-else
+              :src="mediaList[activeIndex ?? 0]"
               :alt="`Image ${(activeIndex ?? 0) + 1}`"
               class="lb-img"
             />
@@ -116,11 +147,11 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   opacity: 0.5;
 }
 
-/* ── Thumbnail grid ── */
+/* ── Grid ── */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 6px;
+  gap: 12px;
 }
 
 .thumb-wrap {
@@ -157,6 +188,16 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   pointer-events: none;
 }
 
+.video-badge {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  font-size: 0.5rem;
+  color: #fff;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 /* ── Lightbox ── */
 .lightbox {
   position: fixed;
@@ -168,7 +209,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   justify-content: center;
 }
 
-.lb-img-wrap {
+.lb-media-wrap {
   max-width: 90vw;
   max-height: 90vh;
   display: flex;
@@ -181,6 +222,18 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   max-height: 90vh;
   object-fit: contain;
   display: block;
+}
+
+.lb-video {
+  max-width: 90vw;
+  max-height: 90vh;
+  display: block;
+  background: #000;
+  outline: none;
+}
+
+.lb-video::-webkit-media-controls-panel {
+  background: rgba(0, 0, 0, 0.6);
 }
 
 .lb-close {
