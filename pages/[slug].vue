@@ -2,18 +2,24 @@
 const route = useRoute()
 const site = useSite()
 
+// Search both selectedWork and personalWork
+const allProjects = computed(() => [
+  ...(site.selectedWork ?? []),
+  ...((site as any).personalWork ?? [])
+])
+
 const project = computed(() =>
-  site.selectedWork.find(p => p.slug === route.params.slug)
+  allProjects.value.find((p: any) => p.slug === route.params.slug)
 )
 
 if (!project.value) {
   throw createError({ statusCode: 404, statusMessage: 'Project not found' })
 }
 
-useHead({ title: project.value?.title ?? '' })
+useHead({ title: (project.value as any)?.title ?? '' })
 
 const { data: raw } = await useFetch('/api/project-images', {
-  query: { folder: project.value?.folder }
+  query: { folder: (project.value as any)?.folder }
 })
 
 const VIDEO_EXT = ['.mp4', '.webm', '.mov']
@@ -54,7 +60,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 
 <template>
   <div>
-    <h1 class="title">{{ project?.title }}</h1>
+    <h1 v-if="(project as any)?.title" class="title">{{ (project as any)?.title }}</h1>
     <div v-if="descriptionLines.length" class="description">
       <p v-for="line in descriptionLines" :key="line">{{ line }}</p>
     </div>
@@ -144,7 +150,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   line-height: 1.6;
 }
 
-/* Mobile: 2 columns */
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -152,14 +157,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   align-items: start;
 }
 
-/* Desktop: auto-fill */
 @media (min-width: 640px) {
   .grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
 }
 
-/* Wrappers */
 .cell-wrap {
   display: flex;
   flex-direction: column;
