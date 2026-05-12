@@ -4,13 +4,15 @@ useSeoMeta({
   title: 'Archive',
   description: `Archive of older work by ${site.name}`
 })
+
+const personalWork = computed(() => (site as any).personalWork ?? [])
 </script>
 
 <template>
   <section>
     <h1 class="section-title">Personal Work</h1>
     <ul class="list">
-      <li v-for="(item, i) in (site as any).personalWork" :key="item.slug">
+      <li v-for="(item, i) in personalWork" :key="item.slug">
         <NuxtLink :to="`/${item.slug}`" class="item">
           {{ String(i + 1).padStart(2, '0') }}
         </NuxtLink>
