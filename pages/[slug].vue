@@ -17,9 +17,7 @@ const { data: raw } = await useFetch('/api/project-images', {
 })
 
 const VIDEO_EXT = ['.mp4', '.webm', '.mov']
-
 const mediaList = computed<string[]>(() => (raw.value as any)?.images ?? [])
-
 function isVideo(src: string) {
   return VIDEO_EXT.some(ext => src.toLowerCase().endsWith(ext))
 }
@@ -28,34 +26,6 @@ const descriptionLines = computed<string[]>(() => {
   const desc = (project.value as any)?.description
   if (!desc) return []
   return desc.split('|').map((s: string) => s.trim()).filter(Boolean)
-})
-
-// Unlock autoplay on first interaction
-function unlockVideos() {
-  document.querySelectorAll('video[data-thumb]').forEach(v => {
-    const vid = v as HTMLVideoElement
-    vid.muted = true
-    vid.play().catch(() => {})
-  })
-}
-
-onMounted(() => {
-  // Try immediately first
-  nextTick(() => {
-    document.querySelectorAll('video[data-thumb]').forEach(v => {
-      const vid = v as HTMLVideoElement
-      vid.muted = true
-      vid.play().catch(() => {})
-    })
-  })
-  // Fallback: unlock on first user interaction
-  document.addEventListener('click', unlockVideos, { once: true })
-  document.addEventListener('touchstart', unlockVideos, { once: true })
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', unlockVideos)
-  document.removeEventListener('touchstart', unlockVideos)
 })
 
 // Lightbox
@@ -70,14 +40,12 @@ const next = () => {
   if (activeIndex.value === null) return
   activeIndex.value = (activeIndex.value + 1) % mediaList.value.length
 }
-
 function onKey(e: KeyboardEvent) {
   if (activeIndex.value === null) return
   if (e.key === 'Escape') close()
   if (e.key === 'ArrowLeft') prev()
   if (e.key === 'ArrowRight') next()
 }
-
 onMounted(() => window.addEventListener('keydown', onKey))
 onUnmounted(() => window.removeEventListener('keydown', onKey))
 </script>
@@ -100,17 +68,18 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         <video
           v-if="isVideo(src)"
           :src="src"
-          data-thumb
-          autoplay
           muted
           playsinline
+          autoplay
           loop
           preload="auto"
+          class="thumb-img"
         />
         <img
           v-else
           :src="src"
           :alt="`Image ${i + 1}`"
+          class="thumb-img"
         />
         <span class="num">({{ i + 1 }})</span>
       </button>
@@ -198,28 +167,18 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   aspect-ratio: 3 / 4;
 }
 
-.cell--image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: opacity 0.2s;
-}
-
-/* Mobile: video full width */
 .cell--video {
   grid-column: span 2;
   aspect-ratio: 16 / 9;
 }
 
-/* Desktop: video spans 4 columns */
 @media (min-width: 640px) {
   .cell--video {
     grid-column: span 4;
   }
 }
 
-.cell--video video {
+.thumb-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -227,8 +186,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   transition: opacity 0.2s;
 }
 
-.cell:hover img,
-.cell:hover video {
+.cell:hover .thumb-img {
   opacity: 0.75;
 }
 
