@@ -28,6 +28,8 @@ const descriptionLines = computed<string[]>(() => {
   return desc.split('|').map((s: string) => s.trim()).filter(Boolean)
 })
 
+const isLandscape = computed(() => (project.value as any)?.ratio === 'landscape')
+
 // Lightbox
 const activeIndex = ref<number | null>(null)
 const open = (i: number) => activeIndex.value = i
@@ -61,7 +63,10 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       <button
         v-for="(src, i) in mediaList"
         :key="src"
-        :class="['cell', isVideo(src) ? 'cell--video' : 'cell--image']"
+        :class="[
+          'cell',
+          isVideo(src) ? 'cell--video' : (isLandscape ? 'cell--landscape' : 'cell--image')
+        ]"
         :aria-label="`Open ${i + 1}`"
         @click="open(i)"
       >
@@ -163,10 +168,17 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   overflow: hidden;
 }
 
+/* Portrait — default */
 .cell--image {
   aspect-ratio: 3 / 4;
 }
 
+/* Landscape */
+.cell--landscape {
+  aspect-ratio: 4 / 3;
+}
+
+/* Video */
 .cell--video {
   grid-column: span 2;
   aspect-ratio: 16 / 9;
