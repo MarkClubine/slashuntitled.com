@@ -12,22 +12,13 @@ useSeoMeta({
   robots: gate.enabled ? 'noindex, nofollow' : null
 })
 
-// Global audio state
 const playing = useState<string | null>('playing', () => null)
-const audioEl = ref<HTMLAudioElement | null>(null)
-
-watch(playing, async (newTrack) => {
-  if (!audioEl.value) return
-  if (!newTrack) {
-    audioEl.value.pause()
-    return
-  }
-  audioEl.value.src = `/sounds/${newTrack}`
-  await audioEl.value.load()
-  audioEl.value.play().catch(() => {})
-})
+const wsInstance = useState<any>('wsInstance', () => null)
 
 function stopAudio() {
+  if (wsInstance.value) {
+    wsInstance.value.stop()
+  }
   playing.value = null
 }
 </script>
@@ -44,10 +35,7 @@ function stopAudio() {
       </main>
     </div>
 
-    <!-- Persistent audio element -->
-    <audio ref="audioEl" @ended="stopAudio" />
-
-    <!-- Mini player — shows when something is playing -->
+    <!-- Mini player shown on other pages -->
     <Transition name="player">
       <div v-if="playing" class="mini-player">
         <span class="mini-track">{{ playing.replace('.mp3', '').replace(/-/g, ' ') }}</span>
@@ -86,7 +74,7 @@ function stopAudio() {
 .mini-stop:hover { opacity: 1; }
 
 .player-enter-active,
-.player-leave-active { transition: opacity 0.2s ease; }
+.player-leave-active { transition: opacity 0.3s ease; }
 .player-enter-from,
 .player-leave-to { opacity: 0; }
 </style>
