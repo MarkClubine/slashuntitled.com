@@ -30,12 +30,6 @@ function toggle(filename: string) {
       </ul>
     </section>
 
-    <nav class="mb-[30px]" aria-label="Site sections">
-      <a v-if="site.blog.url" :href="site.blog.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ site.blog.label }}</a>
-      <NuxtLink to="/about" class="block w-fit">About</NuxtLink>
-      <NuxtLink to="/archive" class="block w-fit">Archive</NuxtLink>
-    </nav>
-
     <section v-if="sounds.length" class="mb-[30px]">
       <h2 class="mb-[5px] font-normal">Sound</h2>
       <ul class="track-list">
@@ -47,6 +41,13 @@ function toggle(filename: string) {
         </li>
       </ul>
     </section>
+
+    <nav class="mb-[30px]" aria-label="Site sections">
+      <a v-if="site.blog.url" :href="site.blog.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ site.blog.label }}</a>
+      <NuxtLink to="/archive" class="block w-fit">Archive</NuxtLink>
+      <NuxtLink to="/photography" class="block w-fit">Photography</NuxtLink>
+      <NuxtLink to="/about" class="block w-fit">About</NuxtLink>
+    </nav>
 
     <footer>
       <a v-if="site.instagram.url" :href="site.instagram.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ site.instagram.handle }}</a>
