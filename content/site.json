@@ -7,18 +7,14 @@
     { "title": "HERBERT N STRAUSS HOUSE", "slug": "herbert-n-strauss-house", "folder": "herbert-n-strauss-house", "description": "Creative director | 2026 New York | All photos shot by Federal Bureau of Investigation" },
     { "title": "OTTOLINGER Pre fall 26 Showroom", "slug": "ottolinger-pre-fall-26-showroom", "folder": "ottolinger-pre-fall-26-showroom" },
     { "title": "KYLER GORDON Styling", "slug": "kyler-gordon-styling", "folder": "kyler-gordon-styling", "description": "Styling | New York 2025" },
-    { "title": "TWO ANGELS FOR ONLYFANS Show", "slug": "two-angels-for-onlyfans-show", "folder": "two-angels-for-onlyfans-show", "description": "Show | Zurich 2025", "ratio": "landscape" },
-    { "title": "SAGG NAPOLI Sempre Contratta", "slug": "sagg-napoli-sempre-contratta", "folder": "sagg-napoli-sempre-contratta", "description": "Rome 2024 | Contribution to Sofia Albrigo set design" },
-    { "title": "MUSEUM FUR GESTALTUNG Lecture", "slug": "museum-fur-gestaltung-lecture", "folder": "museum-fur-gestaltung-lecture", "description": "Zurich 2024" },
-    { "title": "TUSCAN VILLA", "slug": "tuscan-villa", "folder": "tuscan-villa", "description": "Building | Tuscany 2024" },
-    { "title": "Photography", "slug": "photography", "folder": "photography", "description": "Collection of photos shot with film cameras" }
+    { "title": "SAGG NAPOLI Sempre Contratta", "slug": "sagg-napoli-sempre-contratta", "folder": "sagg-napoli-sempre-contratta", "description": "Rome 2024 | Contribution to Sofia Albrigo set design" }
   ],
   "archive": [],
   "personalWork": [
     { "slug": "personal-01", "folder": "personal-01" },
-    { "slug": "personal-02", "folder": "personal-02" },
-    { "slug": "personal-03", "folder": "personal-03" },
-    { "slug": "personal-04", "folder": "personal-04" },
+    { "slug": "two-angels-for-onlyfans-show", "folder": "two-angels-for-onlyfans-show" },
+    { "slug": "tuscan-villa", "folder": "tuscan-villa" },
+    { "slug": "museum-fur-gestaltung-lecture", "folder": "museum-fur-gestaltung-lecture" },
     { "slug": "personal-05", "folder": "personal-05" },
     { "slug": "personal-06", "folder": "personal-06" },
     { "slug": "personal-07", "folder": "personal-07" },
@@ -33,6 +29,7 @@
     { "name": "pink alarm", "file": "pink-alarm.mp3" },
     { "name": "pink", "file": "pink.mp3" }
   ],
+  "photography": { "slug": "photography", "folder": "photography", "description": "Collection of photos shot with film cameras" },
   "about": "SLASH UNTITLED is a multidisciplinary creative practice.",
   "blog": { "label": "Blog", "url": "" },
   "instagram": { "handle": "@slash.untitled", "url": "https://www.instagram.com/slash.untitled/" },
