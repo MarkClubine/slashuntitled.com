@@ -8,20 +8,16 @@ useSeoMeta({
 
 const sounds = computed(() => (site as any).sounds ?? [])
 const playing = ref<string | null>(null)
-const audioRef = ref<HTMLAudioElement | null>(null)
+const audioEl = ref<HTMLAudioElement | null>(null)
 
 function toggle(filename: string) {
   if (playing.value === filename) {
-    audioRef.value?.pause()
+    audioEl.value?.pause()
     playing.value = null
   } else {
-    if (audioRef.value) {
-      audioRef.value.pause()
-    }
+    audioEl.value?.pause()
     playing.value = filename
-    nextTick(() => {
-      audioRef.value?.play()
-    })
+    nextTick(() => audioEl.value?.play())
   }
 }
 </script>
@@ -56,15 +52,15 @@ function toggle(filename: string) {
         rel="noopener noreferrer"
         class="block w-fit"
       >{{ site.blog.label }}</a>
-      <NuxtLink to="/about" class="block w-fit link">About</NuxtLink>
-      <NuxtLink to="/archive" class="block w-fit link">Archive</NuxtLink>
+      <NuxtLink to="/about" class="block w-fit">About</NuxtLink>
+      <NuxtLink to="/archive" class="block w-fit">Archive</NuxtLink>
     </nav>
 
     <section v-if="sounds.length" class="mb-[30px]">
       <h2 class="mb-[5px] font-normal">Sound</h2>
       <audio
         v-if="playing"
-        ref="audioRef"
+        ref="audioEl"
         :src="`/sounds/${playing}`"
         @ended="playing = null"
       />
