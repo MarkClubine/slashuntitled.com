@@ -8,7 +8,7 @@ export default defineAppConfig({
      * When true, the site is gated by a client-side password prompt.
      * Set to false to disable the gate (e.g. once the site is publicly launched).
      */
-    enabled: true,
+    enabled: false,
 
     /**
      * SHA-256 hash of the gate password.
