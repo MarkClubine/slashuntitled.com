@@ -13,6 +13,16 @@
     { "title": "Photography", "slug": "photography", "folder": "photography", "description": "Collection of photos shot with film cameras" }
   ],
   "archive": [],
+  "personalWork": [
+    { "slug": "personal-01", "folder": "personal-01" },
+    { "slug": "personal-02", "folder": "personal-02" },
+    { "slug": "personal-03", "folder": "personal-03" },
+    { "slug": "personal-04", "folder": "personal-04" },
+    { "slug": "personal-05", "folder": "personal-05" },
+    { "slug": "personal-06", "folder": "personal-06" },
+    { "slug": "personal-07", "folder": "personal-07" },
+    { "slug": "personal-08", "folder": "personal-08" }
+  ],
   "about": "SLASH UNTITLED is a multidisciplinary creative practice.",
   "blog": { "label": "Blog", "url": "" },
   "instagram": { "handle": "@slash.untitled", "url": "https://www.instagram.com/slash.untitled/" },
