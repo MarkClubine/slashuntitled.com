@@ -1,11 +1,29 @@
 <script setup lang="ts">
 const site = useSite()
-
 useSeoMeta({
   title: '',
   ogTitle: site.name,
   description: `${site.name} — selected work, archive, contact`
 })
+
+const sounds = computed(() => (site as any).sounds ?? [])
+const playing = ref<string | null>(null)
+const audioRef = ref<HTMLAudioElement | null>(null)
+
+function toggle(filename: string) {
+  if (playing.value === filename) {
+    audioRef.value?.pause()
+    playing.value = null
+  } else {
+    if (audioRef.value) {
+      audioRef.value.pause()
+    }
+    playing.value = filename
+    nextTick(() => {
+      audioRef.value?.play()
+    })
+  }
+}
 </script>
 
 <template>
@@ -14,7 +32,7 @@ useSeoMeta({
       <h2 id="selected-work-heading" class="mb-[5px] font-normal">Selected work</h2>
       <ul class="flex flex-col gap-[3px]">
         <li v-for="item in site.selectedWork" :key="item.slug">
-          <a
+          
             v-if="item.url"
             :href="item.url"
             target="_blank"
@@ -30,8 +48,8 @@ useSeoMeta({
       </ul>
     </section>
 
-    <nav aria-label="Site sections">
-      <a
+    <nav class="mb-[30px]" aria-label="Site sections">
+      
         v-if="site.blog.url"
         :href="site.blog.url"
         target="_blank"
@@ -42,15 +60,33 @@ useSeoMeta({
       <NuxtLink to="/archive" class="block w-fit link">Archive</NuxtLink>
     </nav>
 
-    <footer class="mt-[30px]">
-      <a
+    <section v-if="sounds.length" class="mb-[30px]">
+      <h2 class="mb-[5px] font-normal">Sound</h2>
+      <audio
+        v-if="playing"
+        ref="audioRef"
+        :src="`/sounds/${playing}`"
+        @ended="playing = null"
+      />
+      <ul class="flex flex-col gap-[3px]">
+        <li v-for="track in sounds" :key="track.file" class="flex items-center gap-[8px]">
+          <button class="play-btn" @click="toggle(track.file)">
+            {{ playing === track.file ? '◼' : '▶' }}
+          </button>
+          <span class="track-name">{{ track.name }}</span>
+        </li>
+      </ul>
+    </section>
+
+    <footer>
+      
         v-if="site.instagram.url"
         :href="site.instagram.url"
         target="_blank"
         rel="noopener noreferrer"
         class="block w-fit"
       >{{ site.instagram.handle }}</a>
-      <a
+      
         v-if="site.email"
         :href="`mailto:${site.email}`"
         class="block w-fit"
@@ -58,3 +94,22 @@ useSeoMeta({
     </footer>
   </div>
 </template>
+
+<style scoped>
+.play-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.5rem;
+  opacity: 0.5;
+  padding: 0;
+  line-height: 1;
+  transition: opacity 0.15s;
+}
+.play-btn:hover { opacity: 1; }
+
+.track-name {
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+</style>
