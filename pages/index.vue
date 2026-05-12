@@ -12,8 +12,8 @@ const wsInstance = useState<any>('wsInstance')
 
 const waveformRefs = ref<Record<string, HTMLElement | null>>({})
 const wavesurfers = ref<Record<string, any>>({})
-const durations = ref<Record<string, number>>({})
 const currentTimes = ref<Record<string, number>>({})
+const waveReady = ref<Record<string, boolean>>({})
 
 async function initWaveSurfer(filename: string) {
   if (wavesurfers.value[filename]) return
@@ -26,19 +26,19 @@ async function initWaveSurfer(filename: string) {
   const ws = WaveSurfer.create({
     container: el,
     waveColor: '#ff0000',
-    progressColor: '#880000',
+    progressColor: '#7a0000',
     cursorColor: 'transparent',
     barWidth: 1.5,
     barGap: 1.5,
     barRadius: 1,
-    height: 28,
+    height: 20,
     normalize: true,
     interact: true,
     url: `/sounds/${filename}`,
   })
 
   ws.on('ready', () => {
-    durations.value[filename] = ws.getDuration()
+    waveReady.value[filename] = true
   })
 
   ws.on('audioprocess', () => {
@@ -48,6 +48,7 @@ async function initWaveSurfer(filename: string) {
   ws.on('finish', () => {
     playing.value = null
     wsInstance.value = null
+    waveReady.value[filename] = false
   })
 
   wavesurfers.value[filename] = ws
@@ -59,19 +60,19 @@ async function toggle(filename: string) {
     wavesurfers.value[filename]?.pause()
     playing.value = null
     wsInstance.value = null
+    waveReady.value[filename] = false
     return
   }
 
-  // Stop previous
   if (playing.value && wavesurfers.value[playing.value]) {
     wavesurfers.value[playing.value].stop()
+    waveReady.value[playing.value] = false
   }
 
   playing.value = filename
 
   await nextTick()
   await initWaveSurfer(filename)
-
   await nextTick()
   wavesurfers.value[filename]?.play()
   wsInstance.value = wavesurfers.value[filename]
@@ -111,25 +112,29 @@ onUnmounted(() => {
       <h2 class="mb-[5px] font-normal">Sound</h2>
       <ul class="track-list">
         <li v-for="track in sounds" :key="track.file" class="track-item">
-          <div class="track-top">
+          <!-- Single row: button + name + waveform + time -->
+          <div class="track-row">
             <button class="play-btn" @click="toggle(track.file)">
               {{ playing === track.file ? '◼' : '▶' }}
             </button>
             <span class="track-name">{{ track.name }}</span>
-            <span v-if="playing === track.file" class="track-time">
-              {{ formatTime(currentTimes[track.file]) }}
-            </span>
-          </div>
 
-          <!-- Waveform -->
-          <Transition name="wave">
-            <div v-if="playing === track.file" class="wave-wrap">
+            <!-- Waveform inline -->
+            <div
+              v-if="playing === track.file"
+              class="wave-container"
+              :class="{ 'wave-visible': waveReady[track.file] }"
+            >
               <div
                 :ref="el => waveformRefs[track.file] = el as HTMLElement"
                 class="waveform"
               />
             </div>
-          </Transition>
+
+            <span v-if="playing === track.file" class="track-time">
+              {{ formatTime(currentTimes[track.file]) }}
+            </span>
+          </div>
         </li>
       </ul>
     </section>
@@ -158,7 +163,7 @@ onUnmounted(() => {
 .track-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -167,50 +172,46 @@ onUnmounted(() => {
 .track-item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
 }
 
-.track-top {
+.track-row {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-height: 20px;
 }
 
 .track-name {
   font-size: 0.85rem;
   font-weight: 400;
+  flex-shrink: 0;
+}
+
+/* Waveform grows in smoothly */
+.wave-container {
+  flex: 1;
+  overflow: hidden;
+  opacity: 0;
+  transform: scaleX(0.6);
+  transform-origin: left;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  max-width: 300px;
+}
+
+.wave-container.wave-visible {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.waveform {
+  width: 100%;
 }
 
 .track-time {
   font-size: 0.6rem;
   opacity: 0.35;
   letter-spacing: 0.04em;
-  margin-left: auto;
+  flex-shrink: 0;
   font-variant-numeric: tabular-nums;
-}
-
-.wave-wrap {
-  padding-left: 16px;
-  overflow: hidden;
-}
-
-.waveform {
-  width: 100%;
-  max-width: 400px;
-}
-
-/* Waveform slide-in animation */
-.wave-enter-active {
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-.wave-leave-active {
-  transition: opacity 0.2s ease;
-}
-.wave-enter-from {
-  opacity: 0;
-  transform: translateY(-4px);
-}
-.wave-leave-to {
-  opacity: 0;
 }
 </style>
