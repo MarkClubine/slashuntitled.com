@@ -60,34 +60,35 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     </div>
 
     <div class="grid">
-      <button
+      <div
         v-for="(src, i) in mediaList"
         :key="src"
-        :class="[
-          'cell',
-          isVideo(src) ? 'cell--video' : (isLandscape ? 'cell--landscape' : 'cell--image')
-        ]"
-        :aria-label="`Open ${i + 1}`"
-        @click="open(i)"
+        :class="['cell-wrap', isVideo(src) ? 'cell-wrap--video' : (isLandscape ? 'cell-wrap--landscape' : 'cell-wrap--image')]"
       >
-        <video
-          v-if="isVideo(src)"
-          :src="src"
-          muted
-          playsinline
-          autoplay
-          loop
-          preload="auto"
-          class="thumb-img"
-        />
-        <img
-          v-else
-          :src="src"
-          :alt="`Image ${i + 1}`"
-          class="thumb-img"
-        />
+        <button
+          class="cell"
+          :aria-label="`Open ${i + 1}`"
+          @click="open(i)"
+        >
+          <video
+            v-if="isVideo(src)"
+            :src="src"
+            muted
+            playsinline
+            autoplay
+            loop
+            preload="auto"
+            class="thumb-img"
+          />
+          <img
+            v-else
+            :src="src"
+            :alt="`Image ${i + 1}`"
+            class="thumb-img"
+          />
+        </button>
         <span class="num">({{ i + 1 }})</span>
-      </button>
+      </div>
     </div>
 
     <Teleport to="body">
@@ -147,7 +148,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 20px 12px;
   align-items: start;
 }
 
@@ -155,6 +156,35 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 @media (min-width: 640px) {
   .grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
+
+/* Wrappers */
+.cell-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cell-wrap--image .cell {
+  aspect-ratio: 3 / 4;
+}
+
+.cell-wrap--landscape .cell {
+  aspect-ratio: 4 / 3;
+}
+
+.cell-wrap--video {
+  grid-column: span 2;
+}
+
+.cell-wrap--video .cell {
+  aspect-ratio: 16 / 9;
+}
+
+@media (min-width: 640px) {
+  .cell-wrap--video {
+    grid-column: span 4;
   }
 }
 
@@ -166,28 +196,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   padding: 0;
   display: block;
   overflow: hidden;
-}
-
-/* Portrait — default */
-.cell--image {
-  aspect-ratio: 3 / 4;
-}
-
-/* Landscape */
-.cell--landscape {
-  aspect-ratio: 4 / 3;
-}
-
-/* Video */
-.cell--video {
-  grid-column: span 2;
-  aspect-ratio: 16 / 9;
-}
-
-@media (min-width: 640px) {
-  .cell--video {
-    grid-column: span 4;
-  }
+  width: 100%;
 }
 
 .thumb-img {
@@ -203,13 +212,10 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 }
 
 .num {
-  position: absolute;
-  bottom: 5px;
-  left: 7px;
   font-size: 0.55rem;
-  color: #fff;
-  opacity: 0.5;
-  pointer-events: none;
+  color: #000;
+  opacity: 0.4;
+  letter-spacing: 0.02em;
 }
 
 .lb {
