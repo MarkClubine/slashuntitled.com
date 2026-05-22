@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const site = useSite()
+
 useSeoMeta({
   title: '',
   ogTitle: site.name,
@@ -7,6 +8,7 @@ useSeoMeta({
 })
 
 const sounds = computed(() => (site as any).sounds ?? [])
+
 const playing = useState<string | null>('playing')
 
 function toggle(filename: string) {
@@ -30,6 +32,11 @@ function toggle(filename: string) {
       </ul>
     </section>
 
+    <nav class="mb-[30px]" aria-label="Archive sections">
+      <NuxtLink to="/archive" class="block w-fit">Archive</NuxtLink>
+      <NuxtLink to="/photography" class="block w-fit">Photography</NuxtLink>
+    </nav>
+
     <section v-if="sounds.length" class="mb-[30px]">
       <h2 class="mb-[5px] font-normal">Sound</h2>
       <ul class="track-list">
@@ -44,8 +51,6 @@ function toggle(filename: string) {
 
     <nav class="mb-[30px]" aria-label="Site sections">
       <a v-if="site.blog.url" :href="site.blog.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ site.blog.label }}</a>
-      <NuxtLink to="/archive" class="block w-fit">Archive</NuxtLink>
-      <NuxtLink to="/photography" class="block w-fit">Photography</NuxtLink>
       <NuxtLink to="/about" class="block w-fit">About</NuxtLink>
     </nav>
 
@@ -68,6 +73,7 @@ function toggle(filename: string) {
   transition: opacity 0.15s;
   flex-shrink: 0;
 }
+
 .play-btn:hover { opacity: 1; }
 
 .track-list {
