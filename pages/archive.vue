@@ -1,36 +1,31 @@
 <script setup lang="ts">
 const site = useSite()
+
 useSeoMeta({
   title: 'Archive',
   description: `Archive of older work by ${site.name}`
 })
 
-const personalWork = computed(() => (site as any).personalWork ?? [])
+const archiveItems = computed(() => (site as any).archive ?? [])
+const photography = computed(() => (site as any).photography ?? null)
 </script>
 
 <template>
   <section>
-    <h1 class="section-title">Personal Work</h1>
     <ul class="list">
-      <li v-for="(item, i) in personalWork" :key="item.slug">
+      <li v-for="item in archiveItems" :key="item.slug">
         <NuxtLink :to="`/${item.slug}`" class="item">
-          {{ String(i + 1).padStart(2, '0') }}
+          {{ item.title ?? item.slug }}
         </NuxtLink>
+      </li>
+      <li v-if="photography">
+        <NuxtLink :to="`/${photography.slug}`" class="item">Photography</NuxtLink>
       </li>
     </ul>
   </section>
 </template>
 
 <style scoped>
-.section-title {
-  font-size: 0.75rem;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  opacity: 0.5;
-  margin-bottom: 12px;
-}
-
 .list {
   display: flex;
   flex-direction: column;
