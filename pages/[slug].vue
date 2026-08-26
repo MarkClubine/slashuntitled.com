@@ -57,6 +57,19 @@ function onKey(e: KeyboardEvent) {
   if (e.key === 'ArrowRight') next()
 }
 
+let touchStartX = 0
+
+function onTouchStart(e: TouchEvent) {
+  touchStartX = e.touches[0].clientX
+}
+
+function onTouchEnd(e: TouchEvent) {
+  const diff = touchStartX - e.changedTouches[0].clientX
+  if (Math.abs(diff) < 50) return
+  if (diff > 0) next()
+  else prev()
+}
+
 onMounted(() => window.addEventListener('keydown', onKey))
 onUnmounted(() => window.removeEventListener('keydown', onKey))
 </script>
@@ -73,34 +86,22 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       :key="src"
       :class="['cell-wrap', isVideo(src) ? 'cell-wrap--video' : (isLandscape ? 'cell-wrap--landscape' : 'cell-wrap--image')]"
     >
-      <button
-        class="cell"
-        :aria-label="`Open ${i + 1}`"
-        @click="open(i)"
-      >
-        <video
-          v-if="isVideo(src)"
-          :src="src"
-          muted
-          playsinline
-          autoplay
-          loop
-          preload="auto"
-          class="thumb-img"
-        />
-        <img
-          v-else
-          :src="src"
-          :alt="`Image ${i + 1}`"
-          class="thumb-img"
-        />
+      <button class="cell" :aria-label="`Open ${i + 1}`" @click="open(i)">
+        <video v-if="isVideo(src)" :src="src" muted playsinline autoplay loop preload="auto" class="thumb-img" />
+        <img v-else :src="src" :alt="`Image ${i + 1}`" class="thumb-img" />
       </button>
       <span class="num">({{ i + 1 }})</span>
     </div>
   </div>
   <Teleport to="body">
     <Transition name="fade">
-      <div v-if="activeIndex !== null" class="lb" @click.self="close">
+      <div
+        v-if="activeIndex !== null"
+        class="lb"
+        @click.self="close"
+        @touchstart="onTouchStart"
+        @touchend="onTouchEnd"
+      >
         <button class="lb-close" @click="close">✕</button>
         <span class="lb-count">
           {{ String((activeIndex ?? 0) + 1).padStart(2, '0') }} / {{ String(mediaList.length).padStart(2, '0') }}
@@ -109,16 +110,10 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           <video
             v-if="isVideo(mediaList[activeIndex ?? 0])"
             :src="mediaList[activeIndex ?? 0]"
-            controls
-            autoplay
-            playsinline
+            controls autoplay playsinline
             class="lb-media"
           />
-          <img
-            v-else
-            :src="mediaList[activeIndex ?? 0]"
-            class="lb-media"
-          />
+          <img v-else :src="mediaList[activeIndex ?? 0]" class="lb-media" />
         </div>
         <button class="lb-prev" @click="prev">←</button>
         <button class="lb-next" @click="next">→</button>
@@ -294,7 +289,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 .lb-next:hover { opacity: 1; }
 
 .lb-prev { left: 12px; }
-
 .lb-next { right: 12px; }
 
 .fade-enter-active,
