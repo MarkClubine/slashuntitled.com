@@ -109,15 +109,17 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           {{ String((activeIndex ?? 0) + 1).padStart(2, '0') }} / {{ String(mediaList.length).padStart(2, '0') }}
         </span>
         <div class="lb-content">
-          <video
-            v-if="isVideo(mediaList[activeIndex ?? 0])"
-            :src="mediaList[activeIndex ?? 0]"
-            controls autoplay playsinline
-            class="lb-media"
-          />
-          <img v-else :src="mediaList[activeIndex ?? 0]" class="lb-media" />
+          <div class="lb-media-wrap">
+            <video
+              v-if="isVideo(mediaList[activeIndex ?? 0])"
+              :src="mediaList[activeIndex ?? 0]"
+              controls autoplay playsinline
+              class="lb-media"
+            />
+            <img v-else :src="mediaList[activeIndex ?? 0]" class="lb-media" />
+            <span v-if="activeCredit" class="lb-credit">{{ activeCredit }}</span>
+          </div>
         </div>
-        <span v-if="activeCredit" class="lb-credit">{{ activeCredit }}</span>
         <button class="lb-prev" @click="prev">←</button>
         <button class="lb-next" @click="next">→</button>
       </div>
@@ -223,6 +225,11 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   justify-content: center;
 }
 
+.lb-media-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
 .lb-media {
   max-width: 90vw;
   max-height: 90vh;
@@ -232,14 +239,14 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 }
 
 .lb-credit {
-  position: fixed;
-  bottom: 14px;
-  right: 16px;
-  font-size: 0.55rem;
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  font-size: 0.5rem;
   color: #fff;
   opacity: 0.5;
   letter-spacing: 0.03em;
-  z-index: 2100;
+  pointer-events: none;
 }
 
 .lb-close {
