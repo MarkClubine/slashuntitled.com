@@ -37,6 +37,7 @@ const descriptionLines = computed<string[]>(() => {
 })
 
 const isLandscape = computed(() => (project.value as any)?.ratio === 'landscape')
+const credits = computed(() => (project.value as any)?.credits ?? {})
 
 const activeIndex = ref<number | null>(null)
 const open = (i: number) => activeIndex.value = i
@@ -50,6 +51,11 @@ const next = () => {
   activeIndex.value = (activeIndex.value + 1) % mediaList.value.length
 }
 
+const activeCredit = computed(() => {
+  if (activeIndex.value === null) return null
+  return credits.value[String(activeIndex.value)] ?? null
+})
+
 function onKey(e: KeyboardEvent) {
   if (activeIndex.value === null) return
   if (e.key === 'Escape') close()
@@ -58,11 +64,7 @@ function onKey(e: KeyboardEvent) {
 }
 
 let touchStartX = 0
-
-function onTouchStart(e: TouchEvent) {
-  touchStartX = e.touches[0].clientX
-}
-
+function onTouchStart(e: TouchEvent) { touchStartX = e.touches[0].clientX }
 function onTouchEnd(e: TouchEvent) {
   const diff = touchStartX - e.changedTouches[0].clientX
   if (Math.abs(diff) < 50) return
@@ -115,6 +117,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           />
           <img v-else :src="mediaList[activeIndex ?? 0]" class="lb-media" />
         </div>
+        <span v-if="activeCredit" class="lb-credit">{{ activeCredit }}</span>
         <button class="lb-prev" @click="prev">←</button>
         <button class="lb-next" @click="next">→</button>
       </div>
@@ -165,26 +168,13 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   gap: 6px;
 }
 
-.cell-wrap--image .cell {
-  aspect-ratio: 3 / 4;
-}
-
-.cell-wrap--landscape .cell {
-  aspect-ratio: 4 / 3;
-}
-
-.cell-wrap--video {
-  grid-column: span 2;
-}
-
-.cell-wrap--video .cell {
-  aspect-ratio: 16 / 9;
-}
+.cell-wrap--image .cell { aspect-ratio: 3 / 4; }
+.cell-wrap--landscape .cell { aspect-ratio: 4 / 3; }
+.cell-wrap--video { grid-column: span 2; }
+.cell-wrap--video .cell { aspect-ratio: 16 / 9; }
 
 @media (min-width: 640px) {
-  .cell-wrap--video {
-    grid-column: span 4;
-  }
+  .cell-wrap--video { grid-column: span 4; }
 }
 
 .cell {
@@ -206,9 +196,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   transition: opacity 0.2s;
 }
 
-.cell:hover .thumb-img {
-  opacity: 0.75;
-}
+.cell:hover .thumb-img { opacity: 0.75; }
 
 .num {
   font-size: 0.55rem;
@@ -241,6 +229,17 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   object-fit: contain;
   display: block;
   background: #000;
+}
+
+.lb-credit {
+  position: fixed;
+  bottom: 14px;
+  right: 16px;
+  font-size: 0.55rem;
+  color: #fff;
+  opacity: 0.5;
+  letter-spacing: 0.03em;
+  z-index: 2100;
 }
 
 .lb-close {
