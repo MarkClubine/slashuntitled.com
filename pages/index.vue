@@ -85,40 +85,41 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         <h2 v-if="!expandedSlug" class="mb-[5px] font-normal">Selected work</h2>
       </Transition>
       <ul class="flex flex-col gap-[3px]">
-        <TransitionGroup name="item">
-          <template v-for="item in (site.selectedWork as any[])" :key="item.slug">
-            <li v-if="!expandedSlug || expandedSlug === item.slug">
-              <button
-                class="block w-fit text-left project-btn"
-                :class="{ dimmed: expandedSlug === item.slug }"
-                @click="toggleProject(item)"
-              >
-                {{ item.title }}
-              </button>
+        <li
+          v-for="item in (site.selectedWork as any[])"
+          :key="item.slug"
+          class="project-item"
+          :class="{ 'project-item--hidden': expandedSlug && expandedSlug !== item.slug }"
+        >
+          <button
+            class="block w-fit text-left project-btn"
+            :class="{ dimmed: expandedSlug === item.slug }"
+            @click="toggleProject(item)"
+          >
+            {{ item.title }}
+          </button>
 
-              <Transition name="expand">
-                <div v-if="expandedSlug === item.slug" class="expand-wrap">
-                  <div v-if="descriptionLines.length" class="description">
-                    <p v-for="line in descriptionLines" :key="line">{{ line }}</p>
-                  </div>
-                  <div class="grid">
-                    <div
-                      v-for="(src, i) in expandedImages"
-                      :key="src"
-                      :class="['cell-wrap', isVideo(src) ? 'cell-wrap--video' : 'cell-wrap--image']"
-                    >
-                      <button class="cell" :aria-label="`Open ${i + 1}`" @click="open(i)">
-                        <video v-if="isVideo(src)" :src="src" muted playsinline autoplay loop preload="auto" class="thumb-img" />
-                        <img v-else :src="src" :alt="`Image ${i + 1}`" class="thumb-img" />
-                      </button>
-                      <span class="num">({{ i + 1 }})</span>
-                    </div>
-                  </div>
+          <Transition name="expand">
+            <div v-if="expandedSlug === item.slug" class="expand-wrap">
+              <div v-if="descriptionLines.length" class="description">
+                <p v-for="line in descriptionLines" :key="line">{{ line }}</p>
+              </div>
+              <div class="grid">
+                <div
+                  v-for="(src, i) in expandedImages"
+                  :key="src"
+                  :class="['cell-wrap', isVideo(src) ? 'cell-wrap--video' : 'cell-wrap--image']"
+                >
+                  <button class="cell" :aria-label="`Open ${i + 1}`" @click="open(i)">
+                    <video v-if="isVideo(src)" :src="src" muted playsinline autoplay loop preload="auto" class="thumb-img" />
+                    <img v-else :src="src" :alt="`Image ${i + 1}`" class="thumb-img" />
+                  </button>
+                  <span class="num">({{ i + 1 }})</span>
                 </div>
-              </Transition>
-            </li>
-          </template>
-        </TransitionGroup>
+              </div>
+            </div>
+          </Transition>
+        </li>
       </ul>
     </section>
 
@@ -170,9 +171,18 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </template>
 
 <style scoped>
-/* Project button */
+/* Project items — stay in DOM, only opacity changes (no layout thrash) */
+.project-item {
+  transition: opacity 0.5s ease-in-out;
+}
+.project-item--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Project button dimmed when its section is open */
 .project-btn {
-  transition: opacity 0.4s ease;
+  transition: opacity 0.4s ease-in-out;
 }
 .project-btn.dimmed {
   opacity: 0.4;
@@ -180,26 +190,20 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 
 /* Heading fade */
 .heading-enter-active,
-.heading-leave-active { transition: opacity 0.6s ease-in-out; }
+.heading-leave-active { transition: opacity 0.5s ease-in-out; }
 .heading-enter-from,
 .heading-leave-to { opacity: 0; }
 
-/* Item list transitions */
-.item-enter-active { transition: opacity 0.55s ease-in-out; }
-.item-leave-active { transition: opacity 0.4s ease-in-out; }
-.item-enter-from,
-.item-leave-to { opacity: 0; }
-
 /* Expand content */
 .expand-wrap { overflow: hidden; }
-.expand-enter-active { transition: opacity 0.7s ease-in-out 0.35s; }
-.expand-leave-active { transition: opacity 0.35s ease-in-out; }
+.expand-enter-active { transition: opacity 0.65s ease-in-out 0.3s; }
+.expand-leave-active { transition: opacity 0.3s ease-in-out; }
 .expand-enter-from,
 .expand-leave-to { opacity: 0; }
 
 /* Nav/footer fade */
-.fade-nav-enter-active { transition: opacity 0.55s ease-in-out 0.2s; }
-.fade-nav-leave-active { transition: opacity 0.35s ease-in-out; }
+.fade-nav-enter-active { transition: opacity 0.5s ease-in-out 0.15s; }
+.fade-nav-leave-active { transition: opacity 0.3s ease-in-out; }
 .fade-nav-enter-from,
 .fade-nav-leave-to { opacity: 0; }
 
