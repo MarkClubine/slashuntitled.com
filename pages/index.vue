@@ -81,9 +81,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 <template>
   <div>
     <section class="mb-[30px]">
-      <Transition name="heading">
-        <h2 v-if="!expandedSlug" class="mb-[5px] font-normal">Selected work</h2>
-      </Transition>
+      <!-- visibility:hidden keeps its space so the list never jumps -->
+      <h2 class="mb-[5px] font-normal" :class="{ 'invisible': expandedSlug }">Selected work</h2>
       <ul class="flex flex-col gap-[3px]">
         <li
           v-for="item in (site.selectedWork as any[])"
@@ -99,43 +98,39 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
             {{ item.title }}
           </button>
 
-          <Transition name="expand">
-            <div v-if="expandedSlug === item.slug" class="expand-wrap">
-              <div v-if="descriptionLines.length" class="description">
-                <p v-for="line in descriptionLines" :key="line">{{ line }}</p>
-              </div>
-              <div class="grid">
-                <div
-                  v-for="(src, i) in expandedImages"
-                  :key="src"
-                  :class="['cell-wrap', isVideo(src) ? 'cell-wrap--video' : 'cell-wrap--image']"
-                >
-                  <button class="cell" :aria-label="`Open ${i + 1}`" @click="open(i)">
-                    <video v-if="isVideo(src)" :src="src" muted playsinline autoplay loop preload="auto" class="thumb-img" />
-                    <img v-else :src="src" :alt="`Image ${i + 1}`" class="thumb-img" />
-                  </button>
-                  <span class="num">({{ i + 1 }})</span>
-                </div>
+          <div v-if="expandedSlug === item.slug" class="expand-wrap">
+            <div v-if="descriptionLines.length" class="description">
+              <p v-for="line in descriptionLines" :key="line">{{ line }}</p>
+            </div>
+            <div class="grid">
+              <div
+                v-for="(src, i) in expandedImages"
+                :key="src"
+                :class="['cell-wrap', isVideo(src) ? 'cell-wrap--video' : 'cell-wrap--image']"
+              >
+                <button class="cell" :aria-label="`Open ${i + 1}`" @click="open(i)">
+                  <video v-if="isVideo(src)" :src="src" muted playsinline autoplay loop preload="auto" class="thumb-img" />
+                  <img v-else :src="src" :alt="`Image ${i + 1}`" class="thumb-img" />
+                </button>
+                <span class="num">({{ i + 1 }})</span>
               </div>
             </div>
-          </Transition>
+          </div>
         </li>
       </ul>
     </section>
 
-    <Transition name="fade-nav">
-      <div v-if="!expandedSlug">
-        <nav class="mb-[30px]" aria-label="Site sections">
-          <NuxtLink to="/archive" class="block w-fit">Archive</NuxtLink>
-          <NuxtLink to="/sound" class="block w-fit">Sound</NuxtLink>
-          <NuxtLink to="/about" class="block w-fit">About</NuxtLink>
-        </nav>
-        <footer>
-          <a v-if="site.instagram.url" :href="site.instagram.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ site.instagram.handle }}</a>
-          <a v-if="site.email" :href="`mailto:${site.email}`" class="block w-fit">{{ site.email }}</a>
-        </footer>
-      </div>
-    </Transition>
+    <div v-if="!expandedSlug">
+      <nav class="mb-[30px]" aria-label="Site sections">
+        <NuxtLink to="/archive" class="block w-fit">Archive</NuxtLink>
+        <NuxtLink to="/sound" class="block w-fit">Sound</NuxtLink>
+        <NuxtLink to="/about" class="block w-fit">About</NuxtLink>
+      </nav>
+      <footer>
+        <a v-if="site.instagram.url" :href="site.instagram.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ site.instagram.handle }}</a>
+        <a v-if="site.email" :href="`mailto:${site.email}`" class="block w-fit">{{ site.email }}</a>
+      </footer>
+    </div>
 
     <Teleport to="body">
       <Transition name="lb-fade">
@@ -171,41 +166,20 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </template>
 
 <style scoped>
-/* Project items — stay in DOM, only opacity changes (no layout thrash) */
-.project-item {
-  transition: opacity 0.5s ease-in-out;
-}
+/* Items stay in DOM — opacity toggle is instant, no transition */
 .project-item--hidden {
   opacity: 0;
   pointer-events: none;
 }
 
-/* Project button dimmed when its section is open */
-.project-btn {
-  transition: opacity 0.4s ease-in-out;
-}
 .project-btn.dimmed {
   opacity: 0.4;
 }
 
-/* Heading fade */
-.heading-enter-active,
-.heading-leave-active { transition: opacity 0.5s ease-in-out; }
-.heading-enter-from,
-.heading-leave-to { opacity: 0; }
-
-/* Expand content */
-.expand-wrap { overflow: hidden; }
-.expand-enter-active { transition: opacity 0.65s ease-in-out 0.3s; }
-.expand-leave-active { transition: opacity 0.3s ease-in-out; }
-.expand-enter-from,
-.expand-leave-to { opacity: 0; }
-
-/* Nav/footer fade */
-.fade-nav-enter-active { transition: opacity 0.5s ease-in-out 0.15s; }
-.fade-nav-leave-active { transition: opacity 0.3s ease-in-out; }
-.fade-nav-enter-from,
-.fade-nav-leave-to { opacity: 0; }
+/* Expand content — no transition, appears instantly */
+.expand-wrap {
+  overflow: hidden;
+}
 
 /* Description */
 .description {
@@ -256,7 +230,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: opacity 0.2s;
 }
 .cell:hover .thumb-img { opacity: 0.75; }
 
