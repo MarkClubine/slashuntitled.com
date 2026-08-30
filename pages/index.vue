@@ -7,6 +7,22 @@ useSeoMeta({
   description: `${site.name} — selected work, archive, contact`
 })
 
+// Pre-fetch all project images during SSR so data is baked into the page payload
+const { data: projectImages } = await useAsyncData('project-images', async () => {
+  const result: Record<string, string[]> = {}
+  for (const item of site.selectedWork as any[]) {
+    try {
+      const data = await $fetch<{ images: string[] }>('/api/project-images', {
+        query: { folder: (item as any).folder }
+      })
+      result[(item as any).folder] = data?.images ?? []
+    } catch {
+      result[(item as any).folder] = []
+    }
+  }
+  return result
+})
+
 const expandedSlug = ref<string | null>(null)
 const expandedImages = ref<string[]>([])
 
@@ -27,7 +43,7 @@ function isVideo(src: string) {
   return VIDEO_EXT.some(ext => src.toLowerCase().endsWith(ext))
 }
 
-async function toggleProject(item: any) {
+function toggleProject(item: any) {
   if (expandedSlug.value === item.slug) {
     expandedSlug.value = null
     expandedImages.value = []
@@ -35,12 +51,8 @@ async function toggleProject(item: any) {
     return
   }
   expandedSlug.value = item.slug
-  expandedImages.value = []
   activeIndex.value = null
-  const data = await $fetch<{ images: string[] }>('/api/project-images', {
-    query: { folder: item.folder }
-  })
-  expandedImages.value = data?.images ?? []
+  expandedImages.value = projectImages.value?.[item.folder] ?? []
 }
 
 const activeIndex = ref<number | null>(null)
