@@ -17,6 +17,20 @@ const waveReady = useState<boolean>('waveReady', () => false)
 const currentTime = useState<number>('currentTime', () => 0)
 const expandedSlug = useState<string | null>('expandedSlug', () => null)
 
+// Toggle dark mode class on <html> when a project is expanded
+if (process.client) {
+  watch(expandedSlug, (val) => {
+    document.documentElement.classList.toggle('project-open', !!val)
+  }, { immediate: true })
+}
+
+// Click anywhere outside a photo cell closes the expanded view
+function handlePageClick(e: MouseEvent) {
+  if (!expandedSlug.value) return
+  if ((e.target as Element).closest('.cell')) return
+  expandedSlug.value = null
+}
+
 // WaveSurfer instance kept outside of reactive state to avoid proxy issues
 let ws: any = null
 const waveformEl = ref<HTMLElement | null>(null)
@@ -63,7 +77,6 @@ async function initWaveSurfer(filename: string) {
   })
 }
 
-// Watch for play requests from any page
 watch(playing, async (newTrack) => {
   if (!newTrack) {
     ws?.stop()
@@ -94,7 +107,7 @@ function onLogoClick() {
 </script>
 
 <template>
-  <div>
+  <div @click="handlePageClick">
     <PasswordGate />
     <div class="p-[10px]">
       <header class="mb-[30px]">
@@ -105,15 +118,11 @@ function onLogoClick() {
       </main>
     </div>
 
-    <!-- Persistent player — always mounted, shown when playing -->
     <Transition name="player">
       <div v-if="playing" class="mini-player">
         <button class="mini-stop" @click="stopAudio">◼</button>
         <span class="mini-track">{{ playing.replace('.mp3', '').replace(/-/g, ' ') }}</span>
-        <div
-          class="mini-wave"
-          :class="{ 'mini-wave--visible': waveReady }"
-        >
+        <div class="mini-wave" :class="{ 'mini-wave--visible': waveReady }">
           <div ref="waveformEl" class="mini-waveform" />
         </div>
         <span class="mini-time">{{ formatTime(currentTime) }}</span>
@@ -121,6 +130,15 @@ function onLogoClick() {
     </Transition>
   </div>
 </template>
+
+<style>
+/* Global dark mode when project is open */
+html.project-open,
+html.project-open body {
+  background-color: #000;
+  color: #fff;
+}
+</style>
 
 <style scoped>
 .mini-player {
@@ -166,9 +184,7 @@ function onLogoClick() {
   transform: scaleX(1);
 }
 
-.mini-waveform {
-  width: 100%;
-}
+.mini-waveform { width: 100%; }
 
 .mini-time {
   font-size: 0.6rem;
