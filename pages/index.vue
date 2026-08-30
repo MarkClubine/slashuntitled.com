@@ -41,6 +41,14 @@ function toggleProject(item: any) {
   expandedImages.value = projectImages.value?.[item.folder] ?? []
 }
 
+// Reset local state when expanded is closed from outside (logo click, backdrop click)
+watch(expandedSlug, (val) => {
+  if (!val) {
+    expandedImages.value = []
+    activeIndex.value = null
+  }
+})
+
 const activeIndex = ref<number | null>(null)
 const open = (i: number) => activeIndex.value = i
 const close = () => activeIndex.value = null
@@ -235,7 +243,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 
 .num {
   font-size: 0.55rem;
-  color: #000;
   opacity: 0.4;
   letter-spacing: 0.02em;
 }
