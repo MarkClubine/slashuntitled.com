@@ -7,21 +7,7 @@ useSeoMeta({
   description: `${site.name} — selected work, archive, contact`
 })
 
-// Pre-fetch all project images during SSR so data is baked into the page payload
-const { data: projectImages } = await useAsyncData('project-images', async () => {
-  const result: Record<string, string[]> = {}
-  for (const item of site.selectedWork as any[]) {
-    try {
-      const data = await $fetch<{ images: string[] }>('/api/project-images', {
-        query: { folder: (item as any).folder }
-      })
-      result[(item as any).folder] = data?.images ?? []
-    } catch {
-      result[(item as any).folder] = []
-    }
-  }
-  return result
-})
+const { data: projectImages } = await useFetch<Record<string, string[]>>('/api/all-project-images')
 
 const expandedSlug = ref<string | null>(null)
 const expandedImages = ref<string[]>([])
