@@ -15,6 +15,7 @@ useSeoMeta({
 const playing = useState<string | null>('playing', () => null)
 const waveReady = useState<boolean>('waveReady', () => false)
 const currentTime = useState<number>('currentTime', () => 0)
+const expandedSlug = useState<string | null>('expandedSlug', () => null)
 
 // WaveSurfer instance kept outside of reactive state to avoid proxy issues
 let ws: any = null
@@ -86,6 +87,10 @@ function formatTime(s: number) {
   const sec = Math.floor(s % 60)
   return `${m}:${sec.toString().padStart(2, '0')}`
 }
+
+function onLogoClick() {
+  expandedSlug.value = null
+}
 </script>
 
 <template>
@@ -93,7 +98,7 @@ function formatTime(s: number) {
     <PasswordGate />
     <div class="p-[10px]">
       <header class="mb-[30px]">
-        <NuxtLink to="/" class="block w-fit link">{{ site.name }}</NuxtLink>
+        <NuxtLink to="/" class="block w-fit link" @click="onLogoClick">{{ site.name }}</NuxtLink>
       </header>
       <main>
         <NuxtPage />
