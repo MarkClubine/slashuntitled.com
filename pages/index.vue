@@ -82,7 +82,16 @@ function onTouchEnd(e: TouchEvent) {
   else prev()
 }
 
-onMounted(() => window.addEventListener('keydown', onKey))
+onMounted(() => {
+  window.addEventListener('keydown', onKey)
+  // Preload all project images in background so clicks feel instant
+  for (const srcs of Object.values(projectImages.value ?? {})) {
+    for (const src of srcs) {
+      const img = new Image()
+      img.src = src
+    }
+  }
+})
 onUnmounted(() => window.removeEventListener('keydown', onKey))
 </script>
 
@@ -100,7 +109,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         >
           <button
             class="block w-fit text-left project-btn"
-            :class="{ dimmed: expandedSlug === item.slug }"
             @click="toggleProject(item)"
           >
             {{ item.title }}
@@ -178,10 +186,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 .project-item--hidden {
   opacity: 0;
   pointer-events: none;
-}
-
-.project-btn.dimmed {
-  opacity: 0.4;
 }
 
 /* Expand content — no transition, appears instantly */
