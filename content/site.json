@@ -1,8 +1,8 @@
 {
   "name": "Slash Untitled",
   "selectedWork": [
-    { "title": "OTTOLINGER SS 27 showroom", "slug": "ottolinger-ss-27-showroom", "folder": "ottolinger-ss-27-showroom" },
-    { "title": "YP exhibition", "slug": "yearly-plan-exhibition", "folder": "yearly-plan-exhibition", "credits": { "5": "photo by Gennaro Vitolo", "6": "photo by Gennaro Vitolo" } },
+    { "title": "OTTOLINGER SS 27 showroom", "slug": "ottolinger-ss-27-showroom", "folder": "ottolinger-ss-27-showroom", "description": "Set design | Paris 2027" },
+    { "title": "YP exhibition", "slug": "yearly-plan-exhibition", "folder": "yearly-plan-exhibition", "credits": { "5": "photo by Gennaro Vitolo", "6": "photo by Gennaro Vitolo" }, "description": "Exhibition / Showroom | Paris Galeries Filles du Calvaire 2026" },
     { "title": "CHAPTER publication", "slug": "chapter-publication", "folder": "chapter-publication" },
     { "title": "BALMAIN FW26 runway show", "slug": "balmain-fw26-runway-show", "folder": "balmain-fw26-runway-show", "description": "Set design | Paris 2026 | for Andrea Faraguna" },
     { "title": "OTTOLINGER FW 26 runway show", "slug": "ottolinger-fw26-runway-show", "folder": "ottolinger-fw26-runway-show", "description": "Set design | Paris 2026" },
