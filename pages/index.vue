@@ -7,92 +7,326 @@ useSeoMeta({
   description: `${site.name} — selected work, archive, contact`
 })
 
-const sounds = computed(() => (site as any).sounds ?? [])
+const expandedSlug = ref<string | null>(null)
+const expandedImages = ref<string[]>([])
 
-const playing = useState<string | null>('playing')
+const expandedItem = computed(() =>
+  (site.selectedWork as any[]).find((p: any) => p.slug === expandedSlug.value) ?? null
+)
 
-function toggle(filename: string) {
-  if (playing.value === filename) {
-    playing.value = null
-  } else {
-    playing.value = filename
-  }
+const descriptionLines = computed<string[]>(() => {
+  const desc = expandedItem.value?.description
+  if (!desc) return []
+  return desc.split('|').map((s: string) => s.trim()).filter(Boolean)
+})
+
+const credits = computed(() => expandedItem.value?.credits ?? {})
+
+const VIDEO_EXT = ['.mp4', '.webm', '.mov']
+function isVideo(src: string) {
+  return VIDEO_EXT.some(ext => src.toLowerCase().endsWith(ext))
 }
+
+async function toggleProject(item: any) {
+  if (expandedSlug.value === item.slug) {
+    expandedSlug.value = null
+    expandedImages.value = []
+    activeIndex.value = null
+    return
+  }
+  expandedSlug.value = item.slug
+  expandedImages.value = []
+  activeIndex.value = null
+  const data = await $fetch<{ images: string[] }>('/api/project-images', {
+    query: { folder: item.folder }
+  })
+  expandedImages.value = data?.images ?? []
+}
+
+const activeIndex = ref<number | null>(null)
+const open = (i: number) => activeIndex.value = i
+const close = () => activeIndex.value = null
+const prev = () => {
+  if (activeIndex.value === null) return
+  activeIndex.value = (activeIndex.value - 1 + expandedImages.value.length) % expandedImages.value.length
+}
+const next = () => {
+  if (activeIndex.value === null) return
+  activeIndex.value = (activeIndex.value + 1) % expandedImages.value.length
+}
+
+const activeCredit = computed(() => {
+  if (activeIndex.value === null) return null
+  return credits.value[String(activeIndex.value)] ?? null
+})
+
+function onKey(e: KeyboardEvent) {
+  if (activeIndex.value === null) return
+  if (e.key === 'Escape') close()
+  if (e.key === 'ArrowLeft') prev()
+  if (e.key === 'ArrowRight') next()
+}
+
+let touchStartX = 0
+function onTouchStart(e: TouchEvent) { touchStartX = e.touches[0].clientX }
+function onTouchEnd(e: TouchEvent) {
+  const diff = touchStartX - e.changedTouches[0].clientX
+  if (Math.abs(diff) < 50) return
+  if (diff > 0) next()
+  else prev()
+}
+
+onMounted(() => window.addEventListener('keydown', onKey))
+onUnmounted(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <template>
   <div>
-    <section class="mb-[30px]" aria-labelledby="selected-work-heading">
-      <h2 id="selected-work-heading" class="mb-[5px] font-normal">Selected work</h2>
+    <section class="mb-[30px]">
+      <h2 v-if="!expandedSlug" class="mb-[5px] font-normal">Selected work</h2>
       <ul class="flex flex-col gap-[3px]">
-        <li v-for="item in site.selectedWork" :key="item.slug">
-          <a v-if="item.url" :href="item.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ item.title }}</a>
-          <NuxtLink v-else :to="`/${item.slug}`" class="block w-fit">{{ item.title }}</NuxtLink>
-        </li>
+        <template v-for="item in (site.selectedWork as any[])" :key="item.slug">
+          <li v-if="!expandedSlug || expandedSlug === item.slug">
+            <button
+              class="block w-fit text-left"
+              :style="expandedSlug === item.slug ? 'opacity: 0.4' : ''"
+              @click="toggleProject(item)"
+            >
+              {{ item.title }}
+            </button>
+
+            <template v-if="expandedSlug === item.slug">
+              <div v-if="descriptionLines.length" class="description">
+                <p v-for="line in descriptionLines" :key="line">{{ line }}</p>
+              </div>
+              <div class="grid">
+                <div
+                  v-for="(src, i) in expandedImages"
+                  :key="src"
+                  :class="['cell-wrap', isVideo(src) ? 'cell-wrap--video' : 'cell-wrap--image']"
+                >
+                  <button class="cell" :aria-label="`Open ${i + 1}`" @click="open(i)">
+                    <video v-if="isVideo(src)" :src="src" muted playsinline autoplay loop preload="auto" class="thumb-img" />
+                    <img v-else :src="src" :alt="`Image ${i + 1}`" class="thumb-img" />
+                  </button>
+                  <span class="num">({{ i + 1 }})</span>
+                </div>
+              </div>
+            </template>
+          </li>
+        </template>
       </ul>
     </section>
 
-    <nav class="mb-[30px]" aria-label="Archive sections">
-      <NuxtLink to="/archive" class="block w-fit">Archive</NuxtLink>
-      <NuxtLink to="/photography" class="block w-fit">Photography</NuxtLink>
-    </nav>
+    <template v-if="!expandedSlug">
+      <nav class="mb-[30px]" aria-label="Site sections">
+        <NuxtLink to="/archive" class="block w-fit">Archive</NuxtLink>
+        <NuxtLink to="/sound" class="block w-fit">Sound</NuxtLink>
+        <NuxtLink to="/about" class="block w-fit">About</NuxtLink>
+      </nav>
 
-    <section v-if="sounds.length" class="mb-[30px]">
-      <h2 class="mb-[5px] font-normal">Sound</h2>
-      <ul class="track-list">
-        <li v-for="track in sounds" :key="track.file" class="track-item">
-          <button class="play-btn" @click="toggle(track.file)">
-            {{ playing === track.file ? '◼' : '▶' }}
-          </button>
-          <span class="track-name">{{ track.name }}</span>
-        </li>
-      </ul>
-    </section>
+      <footer>
+        <a v-if="site.instagram.url" :href="site.instagram.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ site.instagram.handle }}</a>
+        <a v-if="site.email" :href="`mailto:${site.email}`" class="block w-fit">{{ site.email }}</a>
+      </footer>
+    </template>
 
-    <nav class="mb-[30px]" aria-label="Site sections">
-      <a v-if="site.blog.url" :href="site.blog.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ site.blog.label }}</a>
-      <NuxtLink to="/about" class="block w-fit">About</NuxtLink>
-    </nav>
-
-    <footer>
-      <a v-if="site.instagram.url" :href="site.instagram.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ site.instagram.handle }}</a>
-      <a v-if="site.email" :href="`mailto:${site.email}`" class="block w-fit">{{ site.email }}</a>
-    </footer>
+    <Teleport to="body">
+      <Transition name="fade">
+        <div
+          v-if="activeIndex !== null"
+          class="lb"
+          @click.self="close"
+          @touchstart="onTouchStart"
+          @touchend="onTouchEnd"
+        >
+          <button class="lb-close" @click="close">✕</button>
+          <span class="lb-count">
+            {{ String((activeIndex ?? 0) + 1).padStart(2, '0') }} / {{ String(expandedImages.length).padStart(2, '0') }}
+          </span>
+          <div class="lb-content">
+            <div class="lb-media-wrap">
+              <video
+                v-if="isVideo(expandedImages[activeIndex ?? 0])"
+                :src="expandedImages[activeIndex ?? 0]"
+                controls autoplay playsinline
+                class="lb-media"
+              />
+              <img v-else :src="expandedImages[activeIndex ?? 0]" class="lb-media" />
+              <span v-if="activeCredit" class="lb-credit">{{ activeCredit }}</span>
+            </div>
+          </div>
+          <button class="lb-prev" @click="prev">←</button>
+          <button class="lb-next" @click="next">→</button>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <style scoped>
-.play-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.5rem;
-  opacity: 0.5;
-  padding: 0;
-  line-height: 1;
-  transition: opacity 0.15s;
-  flex-shrink: 0;
+.description {
+  margin-bottom: 24px;
+  margin-top: 4px;
 }
 
-.play-btn:hover { opacity: 1; }
+.description p {
+  font-size: 0.7rem;
+  font-weight: 400;
+  opacity: 0.4;
+  letter-spacing: 0.02em;
+  margin: 0;
+  line-height: 1.6;
+}
 
-.track-list {
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px 12px;
+  align-items: start;
+  margin-top: 20px;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
+
+.cell-wrap {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
 }
 
-.track-item {
+.cell-wrap--image .cell { aspect-ratio: 3 / 4; }
+.cell-wrap--video { grid-column: span 2; }
+.cell-wrap--video .cell { aspect-ratio: 16 / 9; }
+
+@media (min-width: 640px) {
+  .cell-wrap--video { grid-column: span 4; }
+}
+
+.cell {
+  position: relative;
+  cursor: pointer;
+  background: #111;
+  border: none;
+  padding: 0;
+  display: block;
+  overflow: hidden;
+  width: 100%;
+}
+
+.thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.2s;
+}
+
+.cell:hover .thumb-img { opacity: 0.75; }
+
+.num {
+  font-size: 0.55rem;
+  color: #000;
+  opacity: 0.4;
+  letter-spacing: 0.02em;
+}
+
+.lb {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0,0,0,0.96);
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
 }
 
-.track-name {
-  font-size: 0.85rem;
-  font-weight: 400;
+.lb-content {
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+.lb-media-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.lb-media {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  display: block;
+  background: #000;
+}
+
+.lb-credit {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  font-size: 0.65rem;
+  color: #fff;
+  opacity: 0.5;
+  letter-spacing: 0.03em;
+  pointer-events: none;
+}
+
+.lb-close {
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  opacity: 0.5;
+  cursor: pointer;
+  z-index: 2100;
+  transition: opacity 0.15s;
+}
+
+.lb-close:hover { opacity: 1; }
+
+.lb-count {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  font-size: 0.65rem;
+  color: #fff;
+  opacity: 0.4;
+  z-index: 2100;
+}
+
+.lb-prev,
+.lb-next {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.1rem;
+  opacity: 0.35;
+  cursor: pointer;
+  padding: 12px 16px;
+  z-index: 2100;
+  transition: opacity 0.15s;
+}
+
+.lb-prev:hover,
+.lb-next:hover { opacity: 1; }
+
+.lb-prev { left: 12px; }
+.lb-next { right: 12px; }
+
+.fade-enter-active,
+.fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from,
+.fade-leave-to { opacity: 0; }
 </style>
