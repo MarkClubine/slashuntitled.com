@@ -3,12 +3,12 @@
   "selectedWork": [
     { "title": "OTTOLINGER SS 27 showroom", "slug": "ottolinger-ss-27-showroom", "folder": "ottolinger-ss-27-showroom", "description": "Set design | Paris 2027" },
     { "title": "YP exhibition", "slug": "yearly-plan-exhibition", "folder": "yearly-plan-exhibition", "credits": { "5": "photo by Gennaro Vitolo", "6": "photo by Gennaro Vitolo" }, "description": "Exhibition / Showroom | Paris Galeries Filles du Calvaire 2026" },
-    { "title": "CHAPTER publication", "slug": "chapter-publication", "folder": "chapter-publication" },
+    { "title": "CHAPTER publication", "slug": "chapter-publication", "folder": "chapter-publication" }, "description": "Publication | Berlin 2026" },
     { "title": "BALMAIN FW26 runway show", "slug": "balmain-fw26-runway-show", "folder": "balmain-fw26-runway-show", "description": "Set design | Paris 2026 | for Andrea Faraguna" },
     { "title": "OTTOLINGER FW 26 runway show", "slug": "ottolinger-fw26-runway-show", "folder": "ottolinger-fw26-runway-show", "description": "Set design | Paris 2026" },
     { "title": "OTTOLINGER FW 26 showroom", "slug": "ottolinger-fw26-showroom", "folder": "ottolinger-fw26-showroom", "description": "Set design | Paris 2026" },
     { "title": "KYLER GORDON styling", "slug": "kyler-gordon-styling", "folder": "kyler-gordon-styling", "description": "Styling | New York 2025" },
-    { "title": "PODERE Architecture", "slug": "tuscan-villa", "folder": "tuscan-villa" },
+    { "title": "PODERE architecture", "slug": "tuscan-villa", "folder": "tuscan-villa" }, "description": "Villa | Tuscany 2024" },
     { "title": "SAGG NAPOLI sempre contratta", "slug": "sagg-napoli-sempre-contratta", "folder": "sagg-napoli-sempre-contratta", "description": "Rome 2024 | Contribution to Sofia Albrigo set design" }
   ],
   "archive": [
