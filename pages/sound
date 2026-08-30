@@ -1,0 +1,44 @@
+<script setup lang="ts">
+const site = useSite()
+const sounds = computed(() => (site as any).sounds ?? [])
+
+const currentlyPlaying = ref<string | null>(null)
+const audioRef = ref<HTMLAudioElement | null>(null)
+
+function toggle(filename: string) {
+  if (currentlyPlaying.value === filename) {
+    audioRef.value?.pause()
+    currentlyPlaying.value = null
+  } else {
+    if (audioRef.value) {
+      audioRef.value.pause()
+    }
+    currentlyPlaying.value = filename
+    nextTick(() => {
+      audioRef.value?.play()
+    })
+  }
+}
+
+function onEnded() {
+  currentlyPlaying.value = null
+}
+</script>
+
+<template>
+  <section>
+    <audio
+      v-if="currentlyPlaying"
+      ref="audioRef"
+      :src="`/sounds/${currentlyPlaying}`"
+      @ended="onEnded"
+    />
+    <ul class="list">
+      <li v-for="sound in sounds" :key="sound.file">
+        <button class="block w-fit text-left" @click="toggle(sound.file)">
+          {{ sound.name }}<span v-if="currentlyPlaying === sound.file"> ◼</span><span v-else> ▶</span>
+        </button>
+      </li>
+    </ul>
+  </section>
+</template>
