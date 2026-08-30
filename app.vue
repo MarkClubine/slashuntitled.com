@@ -27,7 +27,9 @@ if (process.client) {
 // Click anywhere outside a photo cell closes the expanded view
 function handlePageClick(e: MouseEvent) {
   if (!expandedSlug.value) return
-  if ((e.target as Element).closest('.cell')) return
+  const t = e.target as Element
+  if (t.closest('.cell')) return
+  if (t.closest('.project-btn')) return
   expandedSlug.value = null
 }
 
