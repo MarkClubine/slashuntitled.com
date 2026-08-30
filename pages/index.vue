@@ -9,7 +9,7 @@ useSeoMeta({
 
 const { data: projectImages } = await useFetch<Record<string, string[]>>('/api/all-project-images')
 
-const expandedSlug = ref<string | null>(null)
+const expandedSlug = useState<string | null>('expandedSlug', () => null)
 const expandedImages = ref<string[]>([])
 
 const expandedItem = computed(() =>
@@ -180,26 +180,26 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 
 /* Heading fade */
 .heading-enter-active,
-.heading-leave-active { transition: opacity 0.3s ease; }
+.heading-leave-active { transition: opacity 0.6s ease-in-out; }
 .heading-enter-from,
 .heading-leave-to { opacity: 0; }
 
 /* Item list transitions */
-.item-enter-active { transition: opacity 0.35s ease; }
-.item-leave-active { transition: opacity 0.25s ease; }
+.item-enter-active { transition: opacity 0.55s ease-in-out; }
+.item-leave-active { transition: opacity 0.4s ease-in-out; }
 .item-enter-from,
 .item-leave-to { opacity: 0; }
 
 /* Expand content */
 .expand-wrap { overflow: hidden; }
-.expand-enter-active { transition: opacity 0.5s ease 0.2s; }
-.expand-leave-active { transition: opacity 0.2s ease; }
+.expand-enter-active { transition: opacity 0.7s ease-in-out 0.35s; }
+.expand-leave-active { transition: opacity 0.35s ease-in-out; }
 .expand-enter-from,
 .expand-leave-to { opacity: 0; }
 
 /* Nav/footer fade */
-.fade-nav-enter-active { transition: opacity 0.35s ease 0.1s; }
-.fade-nav-leave-active { transition: opacity 0.25s ease; }
+.fade-nav-enter-active { transition: opacity 0.55s ease-in-out 0.2s; }
+.fade-nav-leave-active { transition: opacity 0.35s ease-in-out; }
 .fade-nav-enter-from,
 .fade-nav-leave-to { opacity: 0; }
 
