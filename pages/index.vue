@@ -83,56 +83,63 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 <template>
   <div>
     <section class="mb-[30px]">
-      <h2 v-if="!expandedSlug" class="mb-[5px] font-normal">Selected work</h2>
+      <Transition name="heading">
+        <h2 v-if="!expandedSlug" class="mb-[5px] font-normal">Selected work</h2>
+      </Transition>
       <ul class="flex flex-col gap-[3px]">
-        <template v-for="item in (site.selectedWork as any[])" :key="item.slug">
-          <li v-if="!expandedSlug || expandedSlug === item.slug">
-            <button
-              class="block w-fit text-left"
-              :style="expandedSlug === item.slug ? 'opacity: 0.4' : ''"
-              @click="toggleProject(item)"
-            >
-              {{ item.title }}
-            </button>
+        <TransitionGroup name="item">
+          <template v-for="item in (site.selectedWork as any[])" :key="item.slug">
+            <li v-if="!expandedSlug || expandedSlug === item.slug">
+              <button
+                class="block w-fit text-left project-btn"
+                :class="{ dimmed: expandedSlug === item.slug }"
+                @click="toggleProject(item)"
+              >
+                {{ item.title }}
+              </button>
 
-            <template v-if="expandedSlug === item.slug">
-              <div v-if="descriptionLines.length" class="description">
-                <p v-for="line in descriptionLines" :key="line">{{ line }}</p>
-              </div>
-              <div class="grid">
-                <div
-                  v-for="(src, i) in expandedImages"
-                  :key="src"
-                  :class="['cell-wrap', isVideo(src) ? 'cell-wrap--video' : 'cell-wrap--image']"
-                >
-                  <button class="cell" :aria-label="`Open ${i + 1}`" @click="open(i)">
-                    <video v-if="isVideo(src)" :src="src" muted playsinline autoplay loop preload="auto" class="thumb-img" />
-                    <img v-else :src="src" :alt="`Image ${i + 1}`" class="thumb-img" />
-                  </button>
-                  <span class="num">({{ i + 1 }})</span>
+              <Transition name="expand">
+                <div v-if="expandedSlug === item.slug" class="expand-wrap">
+                  <div v-if="descriptionLines.length" class="description">
+                    <p v-for="line in descriptionLines" :key="line">{{ line }}</p>
+                  </div>
+                  <div class="grid">
+                    <div
+                      v-for="(src, i) in expandedImages"
+                      :key="src"
+                      :class="['cell-wrap', isVideo(src) ? 'cell-wrap--video' : 'cell-wrap--image']"
+                    >
+                      <button class="cell" :aria-label="`Open ${i + 1}`" @click="open(i)">
+                        <video v-if="isVideo(src)" :src="src" muted playsinline autoplay loop preload="auto" class="thumb-img" />
+                        <img v-else :src="src" :alt="`Image ${i + 1}`" class="thumb-img" />
+                      </button>
+                      <span class="num">({{ i + 1 }})</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </template>
-          </li>
-        </template>
+              </Transition>
+            </li>
+          </template>
+        </TransitionGroup>
       </ul>
     </section>
 
-    <template v-if="!expandedSlug">
-      <nav class="mb-[30px]" aria-label="Site sections">
-        <NuxtLink to="/archive" class="block w-fit">Archive</NuxtLink>
-        <NuxtLink to="/sound" class="block w-fit">Sound</NuxtLink>
-        <NuxtLink to="/about" class="block w-fit">About</NuxtLink>
-      </nav>
-
-      <footer>
-        <a v-if="site.instagram.url" :href="site.instagram.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ site.instagram.handle }}</a>
-        <a v-if="site.email" :href="`mailto:${site.email}`" class="block w-fit">{{ site.email }}</a>
-      </footer>
-    </template>
+    <Transition name="fade-nav">
+      <div v-if="!expandedSlug">
+        <nav class="mb-[30px]" aria-label="Site sections">
+          <NuxtLink to="/archive" class="block w-fit">Archive</NuxtLink>
+          <NuxtLink to="/sound" class="block w-fit">Sound</NuxtLink>
+          <NuxtLink to="/about" class="block w-fit">About</NuxtLink>
+        </nav>
+        <footer>
+          <a v-if="site.instagram.url" :href="site.instagram.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ site.instagram.handle }}</a>
+          <a v-if="site.email" :href="`mailto:${site.email}`" class="block w-fit">{{ site.email }}</a>
+        </footer>
+      </div>
+    </Transition>
 
     <Teleport to="body">
-      <Transition name="fade">
+      <Transition name="lb-fade">
         <div
           v-if="activeIndex !== null"
           class="lb"
@@ -165,11 +172,44 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </template>
 
 <style scoped>
-.description {
-  margin-bottom: 24px;
-  margin-top: 4px;
+/* Project button */
+.project-btn {
+  transition: opacity 0.4s ease;
+}
+.project-btn.dimmed {
+  opacity: 0.4;
 }
 
+/* Heading fade */
+.heading-enter-active,
+.heading-leave-active { transition: opacity 0.3s ease; }
+.heading-enter-from,
+.heading-leave-to { opacity: 0; }
+
+/* Item list transitions */
+.item-enter-active { transition: opacity 0.35s ease; }
+.item-leave-active { transition: opacity 0.25s ease; }
+.item-enter-from,
+.item-leave-to { opacity: 0; }
+
+/* Expand content */
+.expand-wrap { overflow: hidden; }
+.expand-enter-active { transition: opacity 0.5s ease 0.2s; }
+.expand-leave-active { transition: opacity 0.2s ease; }
+.expand-enter-from,
+.expand-leave-to { opacity: 0; }
+
+/* Nav/footer fade */
+.fade-nav-enter-active { transition: opacity 0.35s ease 0.1s; }
+.fade-nav-leave-active { transition: opacity 0.25s ease; }
+.fade-nav-enter-from,
+.fade-nav-leave-to { opacity: 0; }
+
+/* Description */
+.description {
+  margin-top: 4px;
+  margin-bottom: 24px;
+}
 .description p {
   font-size: 0.7rem;
   font-weight: 400;
@@ -179,6 +219,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   line-height: 1.6;
 }
 
+/* Grid */
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -186,23 +227,14 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   align-items: start;
   margin-top: 20px;
 }
-
 @media (min-width: 640px) {
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
 }
 
-.cell-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
+.cell-wrap { display: flex; flex-direction: column; gap: 6px; }
 .cell-wrap--image .cell { aspect-ratio: 3 / 4; }
 .cell-wrap--video { grid-column: span 2; }
 .cell-wrap--video .cell { aspect-ratio: 16 / 9; }
-
 @media (min-width: 640px) {
   .cell-wrap--video { grid-column: span 4; }
 }
@@ -217,7 +249,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   overflow: hidden;
   width: 100%;
 }
-
 .thumb-img {
   width: 100%;
   height: 100%;
@@ -225,7 +256,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   display: block;
   transition: opacity 0.2s;
 }
-
 .cell:hover .thumb-img { opacity: 0.75; }
 
 .num {
@@ -235,6 +265,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   letter-spacing: 0.02em;
 }
 
+/* Lightbox */
 .lb {
   position: fixed;
   inset: 0;
@@ -244,7 +275,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   align-items: center;
   justify-content: center;
 }
-
 .lb-content {
   max-width: 90vw;
   max-height: 90vh;
@@ -252,12 +282,10 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   align-items: center;
   justify-content: center;
 }
-
 .lb-media-wrap {
   position: relative;
   display: inline-flex;
 }
-
 .lb-media {
   max-width: 90vw;
   max-height: 90vh;
@@ -265,7 +293,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   display: block;
   background: #000;
 }
-
 .lb-credit {
   position: absolute;
   bottom: 6px;
@@ -276,7 +303,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   letter-spacing: 0.03em;
   pointer-events: none;
 }
-
 .lb-close {
   position: fixed;
   top: 14px;
@@ -290,9 +316,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   z-index: 2100;
   transition: opacity 0.15s;
 }
-
 .lb-close:hover { opacity: 1; }
-
 .lb-count {
   position: fixed;
   top: 16px;
@@ -302,7 +326,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   opacity: 0.4;
   z-index: 2100;
 }
-
 .lb-prev,
 .lb-next {
   position: fixed;
@@ -318,15 +341,13 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   z-index: 2100;
   transition: opacity 0.15s;
 }
-
 .lb-prev:hover,
 .lb-next:hover { opacity: 1; }
-
 .lb-prev { left: 12px; }
 .lb-next { right: 12px; }
 
-.fade-enter-active,
-.fade-leave-active { transition: opacity 0.2s ease; }
-.fade-enter-from,
-.fade-leave-to { opacity: 0; }
+.lb-fade-enter-active,
+.lb-fade-leave-active { transition: opacity 0.2s ease; }
+.lb-fade-enter-from,
+.lb-fade-leave-to { opacity: 0; }
 </style>
