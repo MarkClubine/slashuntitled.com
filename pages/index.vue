@@ -237,11 +237,11 @@ onUnmounted(() => {
   margin-top: 16px;
   width: 80px;
   height: 1px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.12);
 }
 .load-bar {
   height: 100%;
-  background: #fff;
+  background: #000;
   transition: width 0.08s linear;
 }
 
