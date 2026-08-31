@@ -104,7 +104,7 @@ function onLogoClick() { expandedSlug.value = null }
 <style>
 /* ── Base: always graphite + white ── */
 html, body {
-  background-color: #3D3B47;
+  background-color: #191919;
   color: #fff;
   min-height: 100%;
 }
