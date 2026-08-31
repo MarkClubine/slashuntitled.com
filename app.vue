@@ -17,14 +17,7 @@ const waveReady = useState<boolean>('waveReady', () => false)
 const currentTime = useState<number>('currentTime', () => 0)
 const expandedSlug = useState<string | null>('expandedSlug', () => null)
 
-// Toggle dark mode class on <html> when a project is expanded
-if (process.client) {
-  watch(expandedSlug, (val) => {
-    document.documentElement.classList.toggle('project-open', !!val)
-  }, { immediate: true })
-}
-
-// Click anywhere outside a photo cell closes the expanded view
+// Click anywhere outside a photo cell or project button closes the expanded view
 function handlePageClick(e: MouseEvent) {
   if (!expandedSlug.value) return
   const t = e.target as Element
@@ -33,21 +26,15 @@ function handlePageClick(e: MouseEvent) {
   expandedSlug.value = null
 }
 
-// WaveSurfer instance kept outside of reactive state to avoid proxy issues
 let ws: any = null
 const waveformEl = ref<HTMLElement | null>(null)
 
 async function initWaveSurfer(filename: string) {
-  if (ws) {
-    ws.destroy()
-    ws = null
-  }
+  if (ws) { ws.destroy(); ws = null }
   waveReady.value = false
   currentTime.value = 0
-
   await nextTick()
   if (!waveformEl.value) return
-
   const WaveSurfer = (await import('wavesurfer.js')).default
   ws = WaveSurfer.create({
     container: waveformEl.value,
@@ -62,39 +49,22 @@ async function initWaveSurfer(filename: string) {
     interact: true,
     url: `/sounds/${filename}`,
   })
-
-  ws.on('ready', () => {
-    waveReady.value = true
-    ws.play()
-  })
-
-  ws.on('audioprocess', () => {
-    currentTime.value = ws.getCurrentTime()
-  })
-
-  ws.on('finish', () => {
-    playing.value = null
-    waveReady.value = false
-    currentTime.value = 0
-  })
+  ws.on('ready', () => { waveReady.value = true; ws.play() })
+  ws.on('audioprocess', () => { currentTime.value = ws.getCurrentTime() })
+  ws.on('finish', () => { playing.value = null; waveReady.value = false; currentTime.value = 0 })
 }
 
 watch(playing, async (newTrack) => {
   if (!newTrack) {
-    ws?.stop()
-    ws?.destroy()
-    ws = null
-    waveReady.value = false
-    currentTime.value = 0
+    ws?.stop(); ws?.destroy(); ws = null
+    waveReady.value = false; currentTime.value = 0
     return
   }
   await nextTick()
   await initWaveSurfer(newTrack)
 })
 
-function stopAudio() {
-  playing.value = null
-}
+function stopAudio() { playing.value = null }
 
 function formatTime(s: number) {
   if (!s || isNaN(s)) return '0:00'
@@ -103,9 +73,7 @@ function formatTime(s: number) {
   return `${m}:${sec.toString().padStart(2, '0')}`
 }
 
-function onLogoClick() {
-  expandedSlug.value = null
-}
+function onLogoClick() { expandedSlug.value = null }
 </script>
 
 <template>
@@ -134,13 +102,23 @@ function onLogoClick() {
 </template>
 
 <style>
-/* Global dark mode when project is open or page is loading */
-html.project-open,
-html.project-open body,
-html.is-loading,
-html.is-loading body {
-  background-color: #000;
+/* ── Base: always graphite + white ── */
+html, body {
+  background-color: #3D3B47;
   color: #fff;
+  min-height: 100%;
+}
+
+/* Film-grain noise overlay — fixed, covers everything, never blocks clicks */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/></filter><rect width='256' height='256' filter='url(%23n)'/></svg>");
+  background-size: 256px 256px;
 }
 </style>
 
@@ -154,7 +132,6 @@ html.is-loading body {
   gap: 8px;
   z-index: 1000;
 }
-
 .mini-stop {
   background: none;
   border: none;
@@ -166,14 +143,12 @@ html.is-loading body {
   flex-shrink: 0;
 }
 .mini-stop:hover { opacity: 1; }
-
 .mini-track {
   font-size: 0.65rem;
   letter-spacing: 0.04em;
   opacity: 0.4;
   flex-shrink: 0;
 }
-
 .mini-wave {
   width: 120px;
   overflow: hidden;
@@ -182,14 +157,8 @@ html.is-loading body {
   transform-origin: left;
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
-
-.mini-wave--visible {
-  opacity: 1;
-  transform: scaleX(1);
-}
-
+.mini-wave--visible { opacity: 1; transform: scaleX(1); }
 .mini-waveform { width: 100%; }
-
 .mini-time {
   font-size: 0.6rem;
   opacity: 0.3;
@@ -197,7 +166,6 @@ html.is-loading body {
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
 }
-
 .player-enter-active,
 .player-leave-active { transition: opacity 0.3s ease; }
 .player-enter-from,
