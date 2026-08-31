@@ -148,6 +148,7 @@ onUnmounted(() => {
           </button>
 
           <div v-if="!loading && expandedSlug === item.slug" class="expand-wrap">
+            <p v-if="item.subtitle" class="subtitle">{{ item.subtitle }}</p>
             <div v-if="descriptionLines.length" class="description">
               <p v-for="line in descriptionLines" :key="line">{{ line }}</p>
             </div>
@@ -250,6 +251,14 @@ onUnmounted(() => {
 }
 
 .expand-wrap { overflow: hidden; }
+
+.subtitle {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.45;
+  letter-spacing: 0.01em;
+}
 
 .description {
   margin-top: 4px;
