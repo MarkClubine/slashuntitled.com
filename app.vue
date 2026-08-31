@@ -17,6 +17,13 @@ const waveReady = useState<boolean>('waveReady', () => false)
 const currentTime = useState<number>('currentTime', () => 0)
 const expandedSlug = useState<string | null>('expandedSlug', () => null)
 
+// Toggle dark mode only when a project is expanded
+if (process.client) {
+  watch(expandedSlug, (val) => {
+    document.documentElement.classList.toggle('project-open', !!val)
+  }, { immediate: true })
+}
+
 // Click anywhere outside a photo cell or project button closes the expanded view
 function handlePageClick(e: MouseEvent) {
   if (!expandedSlug.value) return
@@ -102,21 +109,28 @@ function onLogoClick() { expandedSlug.value = null }
 </template>
 
 <style>
-/* ── Base: always graphite + white ── */
+/* ── Base: white ── */
 html, body {
-  background-color: #191919;
-  color: #fff;
+  background-color: #fff;
+  color: #000;
   min-height: 100%;
 }
 
-/* Film-grain noise overlay — fixed, covers everything, never blocks clicks */
+/* Dark mode when a project is expanded */
+html.project-open,
+html.project-open body {
+  background-color: #191919;
+  color: #fff;
+}
+
+/* Film-grain noise overlay */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   z-index: 9998;
   pointer-events: none;
-  opacity: 0.07;
+  opacity: 0.04;
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/></filter><rect width='256' height='256' filter='url(%23n)'/></svg>");
   background-size: 256px 256px;
 }
