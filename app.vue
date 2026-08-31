@@ -134,9 +134,11 @@ function onLogoClick() {
 </template>
 
 <style>
-/* Global dark mode when project is open */
+/* Global dark mode when project is open or page is loading */
 html.project-open,
-html.project-open body {
+html.project-open body,
+html.is-loading,
+html.is-loading body {
   background-color: #000;
   color: #fff;
 }
