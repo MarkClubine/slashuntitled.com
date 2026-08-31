@@ -32,13 +32,13 @@ function isVideo(src: string) {
 function toggleProject(item: any) {
   if (expandedSlug.value === item.slug) {
     expandedSlug.value = null
-    expandedImages.value = []
-    activeIndex.value = null
     return
   }
+  // Push a history entry so browser back closes the expand instead of leaving the site
+  if (process.client) history.pushState(null, '')
   expandedSlug.value = item.slug
-  activeIndex.value = null
   expandedImages.value = projectImages.value?.[item.folder] ?? []
+  activeIndex.value = null
 }
 
 watch(expandedSlug, (val) => {
@@ -72,6 +72,11 @@ function onKey(e: KeyboardEvent) {
   if (e.key === 'ArrowRight') next()
 }
 
+// Browser back while a project is expanded → close it instead of leaving the site
+function onPopState() {
+  if (expandedSlug.value) expandedSlug.value = null
+}
+
 let touchStartX = 0
 function onTouchStart(e: TouchEvent) { touchStartX = e.touches[0].clientX }
 function onTouchEnd(e: TouchEvent) {
@@ -85,14 +90,9 @@ function onTouchEnd(e: TouchEvent) {
 const loading = ref(true)
 const loadProgress = ref(0)
 
-if (process.client) {
-  watchEffect(() => {
-    document.documentElement.classList.toggle('is-loading', loading.value)
-  })
-}
-
 onMounted(() => {
   window.addEventListener('keydown', onKey)
+  window.addEventListener('popstate', onPopState)
 
   const allImages = Object.values(projectImages.value ?? {})
     .flat()
@@ -123,7 +123,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('keydown', onKey)
-  document.documentElement.classList.remove('is-loading')
+  window.removeEventListener('popstate', onPopState)
 })
 </script>
 
@@ -138,8 +138,7 @@ onUnmounted(() => {
           class="project-item"
           :class="{ 'project-item--hidden': expandedSlug && expandedSlug !== item.slug }"
         >
-          <!-- During loading: show LOADING in exact same style as project button -->
-          <span v-if="loading" class="block w-fit text-left">LOADING</span>
+          <span v-if="loading" class="block w-fit">LOADING</span>
           <button
             v-else
             class="block w-fit text-left project-btn"
@@ -169,14 +168,12 @@ onUnmounted(() => {
         </li>
       </ul>
 
-      <!-- Progress bar sits right below the project list during load -->
       <div v-if="loading" class="load-track">
         <div class="load-bar" :style="{ width: loadProgress + '%' }" />
       </div>
     </section>
 
     <div v-if="!expandedSlug">
-      <!-- Nav: show LOADING lines in same positions during load -->
       <nav class="mb-[30px]" aria-label="Site sections">
         <template v-if="loading">
           <span class="block w-fit">LOADING</span>
@@ -235,7 +232,6 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-/* Loading progress bar */
 .load-track {
   margin-top: 16px;
   width: 80px;
@@ -248,18 +244,13 @@ onUnmounted(() => {
   transition: width 0.08s linear;
 }
 
-/* Items stay in DOM — opacity toggle is instant, no transition */
 .project-item--hidden {
   opacity: 0;
   pointer-events: none;
 }
 
-/* Expand content — no transition, appears instantly */
-.expand-wrap {
-  overflow: hidden;
-}
+.expand-wrap { overflow: hidden; }
 
-/* Description */
 .description {
   margin-top: 4px;
   margin-bottom: 24px;
@@ -273,7 +264,6 @@ onUnmounted(() => {
   line-height: 1.6;
 }
 
-/* Grid */
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -296,7 +286,7 @@ onUnmounted(() => {
 .cell {
   position: relative;
   cursor: pointer;
-  background: #111;
+  background: rgba(255,255,255,0.06);
   border: none;
   padding: 0;
   display: block;
@@ -313,16 +303,15 @@ onUnmounted(() => {
 
 .num {
   font-size: 0.55rem;
-  opacity: 0.4;
+  opacity: 0.35;
   letter-spacing: 0.02em;
 }
 
-/* Lightbox */
 .lb {
   position: fixed;
   inset: 0;
   z-index: 2000;
-  background: rgba(0,0,0,0.96);
+  background: rgba(61,59,71,0.97);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -343,7 +332,6 @@ onUnmounted(() => {
   max-height: 90vh;
   object-fit: contain;
   display: block;
-  background: #000;
 }
 .lb-credit {
   position: absolute;
@@ -393,8 +381,7 @@ onUnmounted(() => {
   z-index: 2100;
   transition: opacity 0.15s;
 }
-.lb-prev:hover,
-.lb-next:hover { opacity: 1; }
+.lb-prev:hover, .lb-next:hover { opacity: 1; }
 .lb-prev { left: 12px; }
 .lb-next { right: 12px; }
 
