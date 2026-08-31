@@ -82,21 +82,54 @@ function onTouchEnd(e: TouchEvent) {
   else prev()
 }
 
+// Loading screen
+const loading = ref(true)
+const loadProgress = ref(0)
+
 onMounted(() => {
   window.addEventListener('keydown', onKey)
-  // Preload all project images in background so clicks feel instant
-  for (const srcs of Object.values(projectImages.value ?? {})) {
-    for (const src of srcs) {
-      const img = new Image()
-      img.src = src
-    }
+
+  const allImages = Object.values(projectImages.value ?? {}).flat().filter(s => !s.endsWith('.mp4') && !s.endsWith('.webm') && !s.endsWith('.mov'))
+  const total = allImages.length
+  if (total === 0) { loading.value = false; return }
+
+  let loaded = 0
+  const startTime = Date.now()
+  const MIN_MS = 600
+
+  function onDone() {
+    loaded++
+    loadProgress.value = Math.round((loaded / total) * 100)
+    if (loaded < total) return
+    const wait = Math.max(0, MIN_MS - (Date.now() - startTime))
+    setTimeout(() => { loading.value = false }, wait)
+  }
+
+  for (const src of allImages) {
+    const img = new Image()
+    img.onload = onDone
+    img.onerror = onDone
+    img.src = src
   }
 })
+
 onUnmounted(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <template>
   <div>
+    <!-- Loading overlay -->
+    <Teleport to="body">
+      <div v-if="loading" class="loading-overlay">
+        <div class="loading-inner">
+          <span class="loading-label">LOADING</span>
+          <div class="loading-track">
+            <div class="loading-bar" :style="{ width: loadProgress + '%' }" />
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
     <section class="mb-[30px]">
       <!-- visibility:hidden keeps its space so the list never jumps -->
       <h2 class="mb-[5px] font-normal" :class="{ 'invisible': expandedSlug }">Selected work</h2>
@@ -182,6 +215,38 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </template>
 
 <style scoped>
+/* Loading overlay */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.loading-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.loading-label {
+  color: #fff;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+}
+.loading-track {
+  width: 100px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+}
+.loading-bar {
+  height: 100%;
+  background: #fff;
+  transition: width 0.08s linear;
+}
+
 /* Items stay in DOM — opacity toggle is instant, no transition */
 .project-item--hidden {
   opacity: 0;
