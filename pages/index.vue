@@ -41,7 +41,6 @@ function toggleProject(item: any) {
   expandedImages.value = projectImages.value?.[item.folder] ?? []
 }
 
-// Reset local state when expanded is closed from outside (logo click, backdrop click)
 watch(expandedSlug, (val) => {
   if (!val) {
     expandedImages.value = []
@@ -82,14 +81,23 @@ function onTouchEnd(e: TouchEvent) {
   else prev()
 }
 
-// Loading screen
+// Loading state
 const loading = ref(true)
 const loadProgress = ref(0)
+
+if (process.client) {
+  watchEffect(() => {
+    document.documentElement.classList.toggle('is-loading', loading.value)
+  })
+}
 
 onMounted(() => {
   window.addEventListener('keydown', onKey)
 
-  const allImages = Object.values(projectImages.value ?? {}).flat().filter(s => !s.endsWith('.mp4') && !s.endsWith('.webm') && !s.endsWith('.mov'))
+  const allImages = Object.values(projectImages.value ?? {})
+    .flat()
+    .filter(s => !VIDEO_EXT.some(ext => s.endsWith(ext)))
+
   const total = allImages.length
   if (total === 0) { loading.value = false; return }
 
@@ -113,26 +121,16 @@ onMounted(() => {
   }
 })
 
-onUnmounted(() => window.removeEventListener('keydown', onKey))
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKey)
+  document.documentElement.classList.remove('is-loading')
+})
 </script>
 
 <template>
   <div>
-    <!-- Loading overlay -->
-    <Teleport to="body">
-      <div v-if="loading" class="loading-overlay">
-        <div class="loading-inner">
-          <span class="loading-label">LOADING</span>
-          <div class="loading-track">
-            <div class="loading-bar" :style="{ width: loadProgress + '%' }" />
-          </div>
-        </div>
-      </div>
-    </Teleport>
-
     <section class="mb-[30px]">
-      <!-- visibility:hidden keeps its space so the list never jumps -->
-      <h2 class="mb-[5px] font-normal" :class="{ 'invisible': expandedSlug }">Selected work</h2>
+      <h2 class="mb-[5px] font-normal" :class="{ invisible: expandedSlug }">Selected work</h2>
       <ul class="flex flex-col gap-[3px]">
         <li
           v-for="item in (site.selectedWork as any[])"
@@ -140,14 +138,17 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           class="project-item"
           :class="{ 'project-item--hidden': expandedSlug && expandedSlug !== item.slug }"
         >
+          <!-- During loading: show LOADING in exact same style as project button -->
+          <span v-if="loading" class="block w-fit text-left">LOADING</span>
           <button
+            v-else
             class="block w-fit text-left project-btn"
             @click="toggleProject(item)"
           >
             {{ item.title }}
           </button>
 
-          <div v-if="expandedSlug === item.slug" class="expand-wrap">
+          <div v-if="!loading && expandedSlug === item.slug" class="expand-wrap">
             <div v-if="descriptionLines.length" class="description">
               <p v-for="line in descriptionLines" :key="line">{{ line }}</p>
             </div>
@@ -167,17 +168,36 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           </div>
         </li>
       </ul>
+
+      <!-- Progress bar sits right below the project list during load -->
+      <div v-if="loading" class="load-track">
+        <div class="load-bar" :style="{ width: loadProgress + '%' }" />
+      </div>
     </section>
 
     <div v-if="!expandedSlug">
+      <!-- Nav: show LOADING lines in same positions during load -->
       <nav class="mb-[30px]" aria-label="Site sections">
-        <NuxtLink to="/archive" class="block w-fit">Archive</NuxtLink>
-        <NuxtLink to="/sound" class="block w-fit">Sound</NuxtLink>
-        <NuxtLink to="/about" class="block w-fit">About</NuxtLink>
+        <template v-if="loading">
+          <span class="block w-fit">LOADING</span>
+          <span class="block w-fit">LOADING</span>
+          <span class="block w-fit">LOADING</span>
+        </template>
+        <template v-else>
+          <NuxtLink to="/archive" class="block w-fit">Archive</NuxtLink>
+          <NuxtLink to="/sound" class="block w-fit">Sound</NuxtLink>
+          <NuxtLink to="/about" class="block w-fit">About</NuxtLink>
+        </template>
       </nav>
       <footer>
-        <a v-if="site.instagram.url" :href="site.instagram.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ site.instagram.handle }}</a>
-        <a v-if="site.email" :href="`mailto:${site.email}`" class="block w-fit">{{ site.email }}</a>
+        <template v-if="loading">
+          <span class="block w-fit">LOADING</span>
+          <span class="block w-fit">LOADING</span>
+        </template>
+        <template v-else>
+          <a v-if="site.instagram.url" :href="site.instagram.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ site.instagram.handle }}</a>
+          <a v-if="site.email" :href="`mailto:${site.email}`" class="block w-fit">{{ site.email }}</a>
+        </template>
       </footer>
     </div>
 
@@ -215,33 +235,14 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </template>
 
 <style scoped>
-/* Loading overlay */
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-  background: #000;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.loading-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-}
-.loading-label {
-  color: #fff;
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
-}
-.loading-track {
-  width: 100px;
+/* Loading progress bar */
+.load-track {
+  margin-top: 16px;
+  width: 80px;
   height: 1px;
   background: rgba(255, 255, 255, 0.15);
 }
-.loading-bar {
+.load-bar {
   height: 100%;
   background: #fff;
   transition: width 0.08s linear;
