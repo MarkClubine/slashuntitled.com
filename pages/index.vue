@@ -34,7 +34,6 @@ function toggleProject(item: any) {
     expandedSlug.value = null
     return
   }
-  // Push a history entry so browser back closes the expand instead of leaving the site
   if (process.client) history.pushState(null, '')
   expandedSlug.value = item.slug
   expandedImages.value = projectImages.value?.[item.folder] ?? []
@@ -72,7 +71,6 @@ function onKey(e: KeyboardEvent) {
   if (e.key === 'ArrowRight') next()
 }
 
-// Browser back while a project is expanded → close it instead of leaving the site
 function onPopState() {
   if (expandedSlug.value) expandedSlug.value = null
 }
@@ -86,39 +84,9 @@ function onTouchEnd(e: TouchEvent) {
   else prev()
 }
 
-// Loading state
-const loading = ref(true)
-const loadProgress = ref(0)
-
 onMounted(() => {
   window.addEventListener('keydown', onKey)
   window.addEventListener('popstate', onPopState)
-
-  const allImages = Object.values(projectImages.value ?? {})
-    .flat()
-    .filter(s => !VIDEO_EXT.some(ext => s.endsWith(ext)))
-
-  const total = allImages.length
-  if (total === 0) { loading.value = false; return }
-
-  let loaded = 0
-  const startTime = Date.now()
-  const MIN_MS = 600
-
-  function onDone() {
-    loaded++
-    loadProgress.value = Math.round((loaded / total) * 100)
-    if (loaded < total) return
-    const wait = Math.max(0, MIN_MS - (Date.now() - startTime))
-    setTimeout(() => { loading.value = false }, wait)
-  }
-
-  for (const src of allImages) {
-    const img = new Image()
-    img.onload = onDone
-    img.onerror = onDone
-    img.src = src
-  }
 })
 
 onUnmounted(() => {
@@ -138,16 +106,14 @@ onUnmounted(() => {
           class="project-item"
           :class="{ 'project-item--hidden': expandedSlug && expandedSlug !== item.slug }"
         >
-          <span v-if="loading" class="block w-fit">LOADING</span>
           <button
-            v-else
             class="block w-fit text-left project-btn"
             @click="toggleProject(item)"
           >
             {{ item.title }}
           </button>
 
-          <div v-if="!loading && expandedSlug === item.slug" class="expand-wrap">
+          <div v-if="expandedSlug === item.slug" class="expand-wrap">
             <p v-if="item.subtitle" class="subtitle">{{ item.subtitle }}</p>
             <div v-if="descriptionLines.length" class="description">
               <p v-for="line in descriptionLines" :key="line">{{ line }}</p>
@@ -160,7 +126,7 @@ onUnmounted(() => {
               >
                 <button class="cell" :aria-label="`Open ${i + 1}`" @click="open(i)">
                   <video v-if="isVideo(src)" :src="src" muted playsinline autoplay loop preload="auto" class="thumb-img" />
-                  <img v-else :src="src" :alt="`Image ${i + 1}`" class="thumb-img" />
+                  <img v-else :src="src" :alt="`Image ${i + 1}`" loading="lazy" class="thumb-img" />
                 </button>
                 <span class="num">({{ i + 1 }})</span>
               </div>
@@ -168,34 +134,17 @@ onUnmounted(() => {
           </div>
         </li>
       </ul>
-
-      <div v-if="loading" class="load-track">
-        <div class="load-bar" :style="{ width: loadProgress + '%' }" />
-      </div>
     </section>
 
     <div v-if="!expandedSlug">
       <nav class="mb-[30px]" aria-label="Site sections">
-        <template v-if="loading">
-          <span class="block w-fit">LOADING</span>
-          <span class="block w-fit">LOADING</span>
-          <span class="block w-fit">LOADING</span>
-        </template>
-        <template v-else>
-          <NuxtLink to="/archive" class="block w-fit">Archive</NuxtLink>
-          <NuxtLink to="/sound" class="block w-fit">Sound</NuxtLink>
-          <NuxtLink to="/about" class="block w-fit">About</NuxtLink>
-        </template>
+        <NuxtLink to="/archive" class="block w-fit">Archive</NuxtLink>
+        <NuxtLink to="/sound" class="block w-fit">Sound</NuxtLink>
+        <NuxtLink to="/about" class="block w-fit">About</NuxtLink>
       </nav>
       <footer>
-        <template v-if="loading">
-          <span class="block w-fit">LOADING</span>
-          <span class="block w-fit">LOADING</span>
-        </template>
-        <template v-else>
-          <a v-if="site.instagram.url" :href="site.instagram.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ site.instagram.handle }}</a>
-          <a v-if="site.email" :href="`mailto:${site.email}`" class="block w-fit">{{ site.email }}</a>
-        </template>
+        <a v-if="site.instagram.url" :href="site.instagram.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ site.instagram.handle }}</a>
+        <a v-if="site.email" :href="`mailto:${site.email}`" class="block w-fit">{{ site.email }}</a>
       </footer>
     </div>
 
@@ -233,18 +182,6 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.load-track {
-  margin-top: 16px;
-  width: 80px;
-  height: 1px;
-  background: rgba(0, 0, 0, 0.12);
-}
-.load-bar {
-  height: 100%;
-  background: #000;
-  transition: width 0.08s linear;
-}
-
 .project-item--hidden {
   opacity: 0;
   pointer-events: none;
@@ -295,7 +232,7 @@ onUnmounted(() => {
 .cell {
   position: relative;
   cursor: pointer;
-  background: rgba(255,255,255,0.06);
+  background: rgba(0,0,0,0.06);
   border: none;
   padding: 0;
   display: block;
@@ -332,10 +269,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
 }
-.lb-media-wrap {
-  position: relative;
-  display: inline-flex;
-}
+.lb-media-wrap { position: relative; display: inline-flex; }
 .lb-media {
   max-width: 90vw;
   max-height: 90vh;
