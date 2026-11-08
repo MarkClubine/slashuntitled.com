@@ -2,6 +2,13 @@
   "name": "Slash Untitled",
   "selectedWork": [
     {
+      "title": "YP store",
+      "slug": "yp-store",
+      "folder": "yp-store",
+      "subtitle": "YEARLY PLAN store",
+      "description": "Architecture, refurbishment | Shanghai 2026"
+    },
+    {
       "title": "OTTOLINGER SS 27 showroom",
       "slug": "ottolinger-ss-27-showroom",
       "folder": "ottolinger-ss-27-showroom",
