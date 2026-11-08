@@ -84,9 +84,59 @@ function onTouchEnd(e: TouchEvent) {
   else prev()
 }
 
+// Loading state — tracks first 3 projects only
+const loading = ref(true)
+const loadProgress = ref(0)
+
+function preloadImages(srcs: string[]) {
+  for (const src of srcs) {
+    const img = new Image()
+    img.src = src
+  }
+}
+
 onMounted(() => {
   window.addEventListener('keydown', onKey)
   window.addEventListener('popstate', onPopState)
+
+  const works = site.selectedWork as any[]
+  const priorityFolders = works.slice(0, 3).map((p: any) => p.folder).filter(Boolean)
+  const restFolders = works.slice(3).map((p: any) => p.folder).filter(Boolean)
+
+  const all = projectImages.value ?? {}
+  const notVideo = (s: string) => !VIDEO_EXT.some(ext => s.toLowerCase().endsWith(ext))
+
+  const prioritySrcs = priorityFolders.flatMap((f: string) => all[f] ?? []).filter(notVideo)
+  const restSrcs = restFolders.flatMap((f: string) => all[f] ?? []).filter(notVideo)
+
+  const total = prioritySrcs.length
+
+  function doneLoading() {
+    loading.value = false
+    // Silently preload the rest now that the page is visible
+    preloadImages(restSrcs)
+  }
+
+  if (total === 0) { doneLoading(); return }
+
+  let loaded = 0
+  const startTime = Date.now()
+  const MIN_MS = 400
+
+  function onDone() {
+    loaded++
+    loadProgress.value = Math.round((loaded / total) * 100)
+    if (loaded < total) return
+    const wait = Math.max(0, MIN_MS - (Date.now() - startTime))
+    setTimeout(doneLoading, wait)
+  }
+
+  for (const src of prioritySrcs) {
+    const img = new Image()
+    img.onload = onDone
+    img.onerror = onDone
+    img.src = src
+  }
 })
 
 onUnmounted(() => {
@@ -106,14 +156,16 @@ onUnmounted(() => {
           class="project-item"
           :class="{ 'project-item--hidden': expandedSlug && expandedSlug !== item.slug }"
         >
+          <span v-if="loading" class="block w-fit">LOADING</span>
           <button
+            v-else
             class="block w-fit text-left project-btn"
             @click="toggleProject(item)"
           >
             {{ item.title }}
           </button>
 
-          <div v-if="expandedSlug === item.slug" class="expand-wrap">
+          <div v-if="!loading && expandedSlug === item.slug" class="expand-wrap">
             <p v-if="item.subtitle" class="subtitle">{{ item.subtitle }}</p>
             <div v-if="descriptionLines.length" class="description">
               <p v-for="line in descriptionLines" :key="line">{{ line }}</p>
@@ -134,17 +186,34 @@ onUnmounted(() => {
           </div>
         </li>
       </ul>
+
+      <div v-if="loading" class="load-track">
+        <div class="load-bar" :style="{ width: loadProgress + '%' }" />
+      </div>
     </section>
 
     <div v-if="!expandedSlug">
       <nav class="mb-[30px]" aria-label="Site sections">
-        <NuxtLink to="/archive" class="block w-fit">Archive</NuxtLink>
-        <NuxtLink to="/sound" class="block w-fit">Sound</NuxtLink>
-        <NuxtLink to="/about" class="block w-fit">About</NuxtLink>
+        <template v-if="loading">
+          <span class="block w-fit">LOADING</span>
+          <span class="block w-fit">LOADING</span>
+          <span class="block w-fit">LOADING</span>
+        </template>
+        <template v-else>
+          <NuxtLink to="/archive" class="block w-fit">Archive</NuxtLink>
+          <NuxtLink to="/sound" class="block w-fit">Sound</NuxtLink>
+          <NuxtLink to="/about" class="block w-fit">About</NuxtLink>
+        </template>
       </nav>
       <footer>
-        <a v-if="site.instagram.url" :href="site.instagram.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ site.instagram.handle }}</a>
-        <a v-if="site.email" :href="`mailto:${site.email}`" class="block w-fit">{{ site.email }}</a>
+        <template v-if="loading">
+          <span class="block w-fit">LOADING</span>
+          <span class="block w-fit">LOADING</span>
+        </template>
+        <template v-else>
+          <a v-if="site.instagram.url" :href="site.instagram.url" target="_blank" rel="noopener noreferrer" class="block w-fit">{{ site.instagram.handle }}</a>
+          <a v-if="site.email" :href="`mailto:${site.email}`" class="block w-fit">{{ site.email }}</a>
+        </template>
       </footer>
     </div>
 
@@ -182,6 +251,18 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.load-track {
+  margin-top: 16px;
+  width: 80px;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.12);
+}
+.load-bar {
+  height: 100%;
+  background: #000;
+  transition: width 0.08s linear;
+}
+
 .project-item--hidden {
   opacity: 0;
   pointer-events: none;
