@@ -29,13 +29,6 @@ function isVideo(src: string) {
   return VIDEO_EXT.some(ext => src.toLowerCase().endsWith(ext))
 }
 
-// Two display ratios only: landscape (16:9) and portrait (3:4)
-const landscape = reactive<Record<string, boolean>>({})
-function onImgLoad(e: Event, src: string) {
-  const img = e.target as HTMLImageElement
-  landscape[src] = img.naturalWidth > img.naturalHeight
-}
-
 function toggleProject(item: any) {
   if (expandedSlug.value === item.slug) {
     expandedSlug.value = null
@@ -181,11 +174,11 @@ onUnmounted(() => {
               <div
                 v-for="(src, i) in expandedImages"
                 :key="src"
-                :class="['cell-wrap', isVideo(src) ? 'cell-wrap--video' : 'cell-wrap--image', landscape[src] ? 'cell-wrap--landscape' : '']"
+                :class="['cell-wrap', isVideo(src) ? 'cell-wrap--video' : 'cell-wrap--image']"
               >
                 <button class="cell" :aria-label="`Open ${i + 1}`" @click="open(i)">
                   <video v-if="isVideo(src)" :src="src" muted playsinline autoplay loop preload="auto" class="thumb-img" />
-                  <img v-else :src="src" :alt="`Image ${i + 1}`" loading="lazy" class="thumb-img" @load="onImgLoad($event, src)" />
+                  <img v-else :src="src" :alt="`Image ${i + 1}`" loading="lazy" class="thumb-img" />
                 </button>
                 <span class="num">({{ i + 1 }})</span>
               </div>
@@ -313,12 +306,8 @@ onUnmounted(() => {
 .cell-wrap--image .cell { aspect-ratio: 3 / 4; }
 .cell-wrap--video { grid-column: span 2; }
 .cell-wrap--video .cell { aspect-ratio: 16 / 9; }
-.cell-wrap--landscape { grid-column: span 2; }
-.cell-wrap--landscape .cell { aspect-ratio: 16 / 9; }
-.grid { grid-auto-flow: dense; }
 @media (min-width: 640px) {
   .cell-wrap--video { grid-column: span 4; }
-  .cell-wrap--landscape { grid-column: span 3; }
 }
 
 .cell {
